@@ -2,14 +2,16 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
   workflow_dispatch:
     inputs:
       tag_name:
-        description: "Tag name for release (e.g. v1.0.0)"
-        required: true
-        default: "v1.0.0"
+        description: "Tag name for release (e.g. v1.1.0)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -21,11 +23,44 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine Version & Tag
+        id: versioning
+        run: |
+          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            TAG="${{ github.event.inputs.tag_name }}"
+            VERSION="${TAG#v}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${{ github.ref_name }}"
+            VERSION="${TAG#v}"
+          else
+            VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Resources/Info.plist)
+            TAG="v${VERSION}"
+          fi
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Target Release Tag: ${TAG} (version ${VERSION})"
 
       - name: Build Application
         run: |
           chmod +x build.sh
           ./build.sh
+
+      - name: Verify Code Signature
+        run: |
+          codesign -v build/DefaultBrowserChanger.app
+
+      - name: Run Tests
+        run: |
+          swift Tests/TestBrowserDetection.swift
+          swift Tests/TestBrowserCycle.swift
+          swift Tests/TestHotkeyManager.swift
+          swift Tests/TestLinkRouter.swift
+          swift Tests/TestOnboardingState.swift
+          swift Tests/TestSingleInstance.swift
+          swift Tests/TestSystemHelperAccessibility.swift
 
       - name: Package Release Archive
         run: |
@@ -34,11 +69,14 @@ jobs:
           shasum -a 256 DefaultBrowserChanger.zip > DefaultBrowserChanger.zip.sha256
           cat DefaultBrowserChanger.zip.sha256
 
-      - name: Create GitHub Release
+      - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
-          name: DefaultBrowserChanger ${{ github.event.inputs.tag_name || github.ref_name }}
+          tag_name: ${{ steps.versioning.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: DefaultBrowserChanger ${{ steps.versioning.outputs.tag }}
           draft: false
           prerelease: false
           generate_release_notes: true
