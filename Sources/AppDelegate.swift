@@ -12,6 +12,13 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         UNUserNotificationCenter.current().delegate = SystemHelper.shared
         HotkeyManager.shared.setup()
 
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleGetURL(event:withReplyEvent:)),
+            forEventClass: AEEventClass(kInternetEventClass),
+            andEventID: AEEventID(kAEGetURL)
+        )
+
         if !OnboardingController.shared.hasCompletedOnboarding {
             DispatchQueue.main.async {
                 OnboardingController.shared.showWindow(force: false)
@@ -19,5 +26,21 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         NSLog("DefaultBrowserChanger: started successfully with menu bar item")
+    }
+
+    // MARK: - URL Interception (Link Router)
+
+    public func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            LinkRouter.shared.route(url: url)
+        }
+    }
+
+    @objc func handleGetURL(event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
+        guard let urlString = event.paramDescriptor(forKeyword: AEKeyword(keyDirectObject))?.stringValue,
+              let url = URL(string: urlString) else {
+            return
+        }
+        LinkRouter.shared.route(url: url)
     }
 }
