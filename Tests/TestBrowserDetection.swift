@@ -81,6 +81,8 @@ public class BrowserManager {
                lowerId.contains("winapp") ||
                path.contains("Applications (Parallels)") ||
                lowerId == "com.openai.codex" ||
+               lowerId == "com.bsormagec.defaultbrowserchanger" ||
+               bundleId == Bundle.main.bundleIdentifier ||
                path.contains("helper") {
                 continue
             }

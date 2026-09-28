@@ -55,11 +55,13 @@ public class BrowserManager {
             let lowerId = bundleId.lowercased()
             let path = url.path
 
-            // Filter out Parallels windows bridges, winapp helpers, OpenAI codex helper, etc.
+            // Filter out Parallels windows bridges, winapp helpers, OpenAI codex helper, self, etc.
             if lowerId.hasPrefix("com.parallels") ||
                lowerId.contains("winapp") ||
                path.contains("Applications (Parallels)") ||
                lowerId == "com.openai.codex" ||
+               lowerId == "com.bsormagec.defaultbrowserchanger" ||
+               bundleId == Bundle.main.bundleIdentifier ||
                path.contains("helper") {
                 continue
             }
