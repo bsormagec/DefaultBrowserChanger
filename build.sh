@@ -26,6 +26,7 @@ if [ -n "$SWIFT_FILES" ]; then
         -framework ServiceManagement \
         -framework UserNotifications \
         -framework SwiftUI \
+        -framework Carbon \
         $SWIFT_FILES \
         -o "$MACOS_DIR/DefaultBrowserChanger"
 
