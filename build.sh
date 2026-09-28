@@ -10,8 +10,11 @@ RESOURCES_DIR="$CONTENTS_DIR/Resources"
 echo "Creating bundle structure..."
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
-echo "Copying Info.plist..."
+echo "Copying Info.plist and Resources..."
 cp "$DIR/Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
+if [ -f "$DIR/Resources/AppIcon.icns" ]; then
+    cp "$DIR/Resources/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
+fi
 
 SWIFT_FILES=$(find "$DIR/Sources" -name "*.swift" 2>/dev/null || true)
 

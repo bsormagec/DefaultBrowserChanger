@@ -20,8 +20,10 @@
 	<true/>
 	<key>NSHighResolutionCapable</key>
 	<true/>
-	<key>LSMinimumSystemVersion</key>
-	<string>13.0</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>DefaultBrowserChanger uses Apple Events to confirm your default browser selection automatically.</string>
 </dict>
