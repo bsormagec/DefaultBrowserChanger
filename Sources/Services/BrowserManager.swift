@@ -78,9 +78,8 @@ public class BrowserManager {
             // Extract display name
             let displayName = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
 
-            // Extract icon and resize to 18x18
-            let icon = NSWorkspace.shared.icon(forFile: url.path)
-            icon.size = NSSize(width: 18, height: 18)
+            // Extract icon and render crisp 18x18 bitmap (36x36 @2x Retina)
+            let icon = self.createMenuIcon(for: url.path, size: 18)
 
             let isDefault = (bundleId == currentDefault)
             let browser = BrowserApp(
@@ -172,5 +171,46 @@ public class BrowserManager {
                 completion(isSuccess)
             }
         }
+    }
+
+    private func createMenuIcon(for filePath: String, size: CGFloat = 18) -> NSImage {
+        let source = NSWorkspace.shared.icon(forFile: filePath)
+        let targetSize = NSSize(width: size, height: size)
+        let scale: CGFloat = 2.0
+        let pixelWidth = Int(size * scale)
+        let pixelHeight = Int(size * scale)
+
+        guard let rep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: pixelWidth,
+            pixelsHigh: pixelHeight,
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        ) else {
+            let fallback = NSImage(size: targetSize)
+            fallback.lockFocus()
+            source.draw(in: NSRect(origin: .zero, size: targetSize), from: .zero, operation: .sourceOver, fraction: 1.0)
+            fallback.unlockFocus()
+            return fallback
+        }
+
+        rep.size = targetSize
+
+        NSGraphicsContext.saveGraphicsState()
+        if let context = NSGraphicsContext(bitmapImageRep: rep) {
+            NSGraphicsContext.current = context
+            context.imageInterpolation = .high
+            source.draw(in: NSRect(origin: .zero, size: targetSize), from: .zero, operation: .sourceOver, fraction: 1.0)
+        }
+        NSGraphicsContext.restoreGraphicsState()
+
+        let result = NSImage(size: targetSize)
+        result.addRepresentation(rep)
+        return result
     }
 }
