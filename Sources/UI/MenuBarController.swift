@@ -83,6 +83,11 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         launchItem.state = SystemHelper.shared.isLaunchAtLoginEnabled ? .on : .off
         menu.addItem(launchItem)
 
+        let hotkeyItem = NSMenuItem(title: "Cycle Shortcut (⌃⌥B)", action: #selector(toggleHotkeyEnabled(_:)), keyEquivalent: "")
+        hotkeyItem.target = self
+        hotkeyItem.state = HotkeyManager.shared.isHotkeyEnabled ? .on : .off
+        menu.addItem(hotkeyItem)
+
         let settingsItem = NSMenuItem(title: "Open in System Settings...", action: #selector(openSystemSettings(_:)), keyEquivalent: "")
         settingsItem.target = self
         menu.addItem(settingsItem)
@@ -134,6 +139,12 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         let newState = !SystemHelper.shared.isLaunchAtLoginEnabled
         SystemHelper.shared.setLaunchAtLogin(enabled: newState)
         sender.state = SystemHelper.shared.isLaunchAtLoginEnabled ? .on : .off
+    }
+
+    @objc func toggleHotkeyEnabled(_ sender: NSMenuItem) {
+        let newState = !HotkeyManager.shared.isHotkeyEnabled
+        HotkeyManager.shared.isHotkeyEnabled = newState
+        sender.state = newState ? .on : .off
     }
 
     @objc func openSystemSettings(_ sender: NSMenuItem) {

@@ -10,6 +10,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController = MenuBarController()
         SystemHelper.shared.requestNotificationPermission()
         UNUserNotificationCenter.current().delegate = SystemHelper.shared
+        HotkeyManager.shared.setup()
 
         if !OnboardingController.shared.hasCompletedOnboarding {
             DispatchQueue.main.async {
