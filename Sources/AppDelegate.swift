@@ -10,6 +10,13 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         menuBarController = MenuBarController()
         SystemHelper.shared.requestNotificationPermission()
         UNUserNotificationCenter.current().delegate = SystemHelper.shared
+
+        if !OnboardingController.shared.hasCompletedOnboarding {
+            DispatchQueue.main.async {
+                OnboardingController.shared.showWindow(force: false)
+            }
+        }
+
         NSLog("DefaultBrowserChanger: started successfully with menu bar item")
     }
 }

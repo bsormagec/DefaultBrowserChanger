@@ -87,6 +87,10 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         settingsItem.target = self
         menu.addItem(settingsItem)
 
+        let welcomeItem = NSMenuItem(title: "Welcome Guide...", action: #selector(openWelcomeGuide(_:)), keyEquivalent: "")
+        welcomeItem.target = self
+        menu.addItem(welcomeItem)
+
         let refreshItem = NSMenuItem(title: "Refresh Browsers", action: #selector(refreshBrowsers(_:)), keyEquivalent: "")
         refreshItem.target = self
         menu.addItem(refreshItem)
@@ -134,6 +138,10 @@ public class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc func openSystemSettings(_ sender: NSMenuItem) {
         SystemHelper.shared.openDesktopAndDockSettings()
+    }
+
+    @objc func openWelcomeGuide(_ sender: NSMenuItem) {
+        OnboardingController.shared.showWindow(force: true)
     }
 
     @objc func refreshBrowsers(_ sender: NSMenuItem) {
