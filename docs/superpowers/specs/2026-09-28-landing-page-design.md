@@ -109,7 +109,7 @@ Interactive accordion component:
 - High-visibility conversion container encouraging immediate download of v1.1.1.
 
 ### 7. Footer (`<footer>`)
-- Author credits: "DefaultBrowserChanger © 2026. Built with ❤️ by Burak Ormagec."
+- Author credits: "DefaultBrowserChanger © 2026. Built with ❤️ by bsormagec."
 - Links: MIT License, GitHub Repository, Releases.
 
 ---
