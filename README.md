@@ -46,6 +46,24 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 
 ---
 
+## 💡 Built for Modern Multi-Account & AI Workflows
+
+Today's power users, developers, and AI practitioners rarely live in just one browser:
+- 🏢 **Work / Personal Profiles:** Google Chrome for corporate Workspace accounts, Arc or Safari for personal browsing.
+- 🤖 **AI Agents & Sandboxes:** Dedicated sessions in BrowserOS neo, Perplexity Comet, or Chrome Canary for AI agents, research, and prompt development.
+- 🛡️ **Privacy & Persona Testing:** Brave or Firefox for ad-free environments or secondary testing personas.
+
+### The Problem: The "OAuth & Login Link" Nightmare
+When clicking an email verification, a Slack link, or an app's **"Sign in with Google / GitHub"** button, macOS opens it blindly in your default browser. If your default browser isn't signed into the right account, you end up with:
+- ❌ Logged into the wrong Google/GitHub account.
+- ❌ Failed OAuth redirects and session mix-ups.
+- ❌ Annoying manual URL copying and pasting between windows.
+
+### The Fix: Switch in 0.5 Seconds
+With **DefaultBrowserChanger**, you click the Globe, select the browser where your active session lives, and click the link. The exact browser you want captures the authentication callback immediately — no profile switching, no URL copying, no friction.
+
+---
+
 ## 📥 Installation
 
 ### Option 1: Download from GitHub Releases (Recommended)
