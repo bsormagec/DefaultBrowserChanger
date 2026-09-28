@@ -179,6 +179,31 @@ public class BrowserManager {
         }
     }
 
+    // MARK: - Browser Cycling
+
+    public func cycleNextDefaultBrowser(completion: ((BrowserApp?) -> Void)? = nil) {
+        let browsers = fetchInstalledBrowsers()
+        guard !browsers.isEmpty else {
+            completion?(nil)
+            return
+        }
+
+        let currentDefaultId = getCurrentDefaultBrowserBundleId()
+        let nextBrowser: BrowserApp
+
+        if let currentDefaultId = currentDefaultId,
+           let currentIndex = browsers.firstIndex(where: { $0.id == currentDefaultId }) {
+            let nextIndex = (currentIndex + 1) % browsers.count
+            nextBrowser = browsers[nextIndex]
+        } else {
+            nextBrowser = browsers[0]
+        }
+
+        setDefaultBrowser(bundleId: nextBrowser.id) { success in
+            completion?(success ? nextBrowser : nil)
+        }
+    }
+
     private func createMenuIcon(for filePath: String, size: CGFloat = 18) -> NSImage {
         let source = NSWorkspace.shared.icon(forFile: filePath)
         let targetSize = NSSize(width: size, height: size)
