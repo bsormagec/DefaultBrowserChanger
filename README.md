@@ -94,10 +94,18 @@ With **DefaultBrowserChanger**, press `⌃⌥B` or click the Globe, select the b
 
 > [!TIP]
 > **First-Launch Gatekeeper Notice (Unidentified Developer):**  
-> Because DefaultBrowserChanger is a free open-source project without a paid Apple Developer subscription ($99/yr), macOS Gatekeeper may show a notice on first launch:
-> - Simply **Right-Click (or Control-Click) the app icon → Open → Click Open**, OR
+> Because releases downloaded via browser are marked with Apple's `com.apple.quarantine` attribute, macOS Gatekeeper may show a notice on first launch:
+> 
+> **Option A (Terminal - Instant):**
+> ```bash
+> xattr -cr /Applications/DefaultBrowserChanger.app
+> ```
+> *(This removes Apple's quarantine flag recursively and allows instant launch without any dialogs).*
+> 
+> **Option B (GUI):**
+> - **Right-Click (or Control-Click)** the app icon → Click **Open** → Click **Open**, OR
 > - Go to **System Settings → Privacy & Security** and click **Open Anyway**.  
-> macOS will remember this decision and never ask again!
+> macOS will remember your approval and never ask again!
 
 ### Option 2: Build & Install from Source
 Ensure you have Xcode Command Line Tools installed (`xcode-select --install`).

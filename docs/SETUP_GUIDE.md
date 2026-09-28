@@ -78,9 +78,30 @@ If DefaultBrowserChanger is your default browser and is not currently running, c
 Yes! Click the Globe icon in the menu bar and select **Welcome Guide...** at any time.
 
 ### What if macOS Gatekeeper shows a warning on first launch?
-Because this is an independent open-source project distributed outside the Mac App Store without a paid Apple Developer certificate ($99/yr), macOS Gatekeeper flags it on the first launch.
-To open it:
-1. **Right-Click (Control-Click)** `DefaultBrowserChanger.app` in `/Applications` → click **Open** → click **Open**.
-2. Or open **System Settings → Privacy & Security** and click **Open Anyway**.
-3. Or in Terminal: `xattr -cr /Applications/DefaultBrowserChanger.app`.
-macOS only asks once; subsequent launches open instantly.
+When you download applications from GitHub or the web using a browser (Safari, Chrome, etc.), macOS automatically applies an extended attribute called `com.apple.quarantine` to the downloaded file. For open-source apps distributed outside the Mac App Store, Gatekeeper prevents direct double-click launching until you explicitly approve the app.
+
+You can resolve this instantly using any of the following methods:
+
+#### Method 1: Remove Quarantine via Terminal (Recommended for power users)
+Run this single command in your Terminal:
+```bash
+xattr -cr /Applications/DefaultBrowserChanger.app
+```
+- **What this does:**
+  - `xattr`: macOS command to manipulate extended file attributes.
+  - `-c`: Clears all extended attributes.
+  - `-r`: Operates recursively across the entire application bundle.
+  - This removes the `com.apple.quarantine` flag completely, allowing the app to launch instantly without any security prompts.
+
+#### Method 2: Right-Click (Control-Click) Open (GUI)
+1. Navigate to `/Applications` in Finder.
+2. **Right-Click** (or hold <kbd>Control</kbd> and click) `DefaultBrowserChanger.app`.
+3. Select **Open** from the menu.
+4. In the confirmation dialog, click **Open**.
+5. macOS will permanently record your permission, and all future launches will open instantly with a normal click.
+
+#### Method 3: System Settings Security Tab
+1. Open **System Settings** → **Privacy & Security**.
+2. Scroll down to the **Security** section.
+3. You will see: *"DefaultBrowserChanger was blocked from use because it is not from an identified developer."*
+4. Click **Open Anyway** and enter your Mac password or Touch ID.
