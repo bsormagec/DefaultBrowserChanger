@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.burak.DefaultBrowserChanger</string>
+	<string>com.bsormagec.DefaultBrowserChanger</string>
 	<key>CFBundleName</key>
 	<string>DefaultBrowserChanger</string>
 	<key>CFBundleDisplayName</key>
