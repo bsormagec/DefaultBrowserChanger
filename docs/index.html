@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DefaultBrowserChanger — 1-Click macOS Menu Bar Browser Switcher</title>
+  <meta name="description" content="Switch default browsers on macOS in 1-click or with a global hotkey (⌃⌥B). Features an instant 0.001s Link Interceptor proxy. 100% free, private, and open source.">
+  <link rel="icon" type="image/png" href="assets/AppIcon.png">
+
+  <!-- OpenGraph & Twitter Cards -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DefaultBrowserChanger — 1-Click macOS Menu Bar Browser Switcher">
+  <meta property="og:description" content="Switch default browsers on macOS in 1-click or with a global hotkey (⌃⌥B). Features an instant 0.001s Link Interceptor proxy. 100% free, private, and open source.">
+  <meta property="og:url" content="https://bsormagec.github.io/DefaultBrowserChanger/">
+  <meta property="og:image" content="https://raw.githubusercontent.com/bsormagec/DefaultBrowserChanger/main/docs/assets/dropdown_menu.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="DefaultBrowserChanger — 1-Click macOS Menu Bar Browser Switcher">
+  <meta name="twitter:description" content="Switch default browsers on macOS in 1-click or with a global hotkey (⌃⌥B). Features an instant 0.001s Link Interceptor proxy.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/bsormagec/DefaultBrowserChanger/main/docs/assets/dropdown_menu.png">
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --bg-card: rgba(255, 255, 255, 0.035);
+      --bg-card-hover: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.18);
+      --accent: #0a84ff;
+      --accent-hover: #409cff;
+      --accent-glow: rgba(10, 132, 255, 0.28);
+      --text: #f5f5f7;
+      --text-muted: #86868b;
+      --text-dim: #636366;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(10, 132, 255, 0.18), transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 60%, rgba(88, 166, 255, 0.05), transparent 60%),
+        var(--bg);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 13, 22, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
+    }
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      color: var(--text);
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-nav-download {
+      background: var(--accent);
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+    .btn-nav-download:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 5rem 0 3.5rem;
+      text-align: center;
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #79c0ff;
+      margin-bottom: 1.75rem;
+      transition: border-color 0.2s;
+    }
+    .badge-pill:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(180deg, #ffffff 30%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 2.25rem;
+      line-height: 1.55;
+    }
+    .hero-cta-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 13px 26px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 25px var(--accent-glow);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(10, 132, 255, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 13px 22px;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    /* ===== HERO SHOWCASE (MENUBAR + DROPDOWN) ===== */
+    .showcase-window {
+      max-width: 760px;
+      margin: 0 auto;
+      background: rgba(22, 27, 34, 0.65);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+      text-align: left;
+    }
+    .mac-menubar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.8rem;
+      color: #c9d1d9;
+    }
+    .menubar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .menubar-left .apple-logo {
+      font-size: 0.95rem;
+    }
+    .menubar-left .app-name {
+      font-weight: 600;
+    }
+    .menubar-left span:not(.app-name):not(.apple-logo) {
+      opacity: 0.65;
+    }
+    .menubar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .menubar-active-pill {
+      background: rgba(10, 132, 255, 0.22);
+      border: 1px solid rgba(10, 132, 255, 0.45);
+      border-radius: 5px;
+      padding: 3px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #58a6ff;
+      font-size: 0.76rem;
+    }
+    .hotkey-badge {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .showcase-content {
+      display: flex;
+      padding: 2rem;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media (max-width: 720px) {
+      .showcase-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+    .dropdown-image-wrap {
+      flex-shrink: 0;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .dropdown-image-wrap img {
+      display: block;
+      width: 240px;
+      height: auto;
+    }
+    .showcase-text {
+      flex: 1;
+    }
+    .showcase-text h3 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.01em;
+    }
+    .showcase-text p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 1.25rem;
+    }
+    .showcase-features-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: #c9d1d9;
+    }
+    .showcase-features-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bullet-check {
+      color: #34c759;
+      font-weight: bold;
+    }
+
+    /* ===== SECTION HEADINGS ===== */
+    .section {
+      padding: 5rem 0;
+      position: relative;
+    }
+    .section-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3.5rem;
+    }
+    .section-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.75rem;
+      color: #ffffff;
+    }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ===== FEATURES GRID ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+    }
+    .feat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .feat-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+    .feat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      background: rgba(10, 132, 255, 0.12);
+      border: 1px solid rgba(10, 132, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 1.25rem;
+    }
+    .feat-card h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .feat-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ===== SETUP GUIDE ===== */
+    .setup-steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 850px) {
+      .setup-steps-row { grid-template-columns: 1fr; }
+    }
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+    }
+    .step-card:hover {
+      border-color: var(--border-hover);
+    }
+    .step-content {
+      padding: 1.5rem 1.5rem 1rem;
+    }
+    .step-number-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(10, 132, 255, 0.2);
+      color: #58a6ff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .step-content h4 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: #fff;
+    }
+    .step-content p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .step-image-wrap {
+      margin-top: auto;
+      padding: 0 1.25rem 1.25rem;
+    }
+    .step-image {
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: block;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Gatekeeper Notice Box */
+    .gatekeeper-box {
+      background: rgba(255, 159, 10, 0.06);
+      border: 1px solid rgba(255, 159, 10, 0.22);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      margin-top: 1rem;
+    }
+    .gk-icon-wrap {
+      font-size: 1.5rem;
+      line-height: 1;
+      padding-top: 2px;
+    }
+    .gk-body {
+      flex: 1;
+    }
+    .gk-body h4 {
+      color: #ff9f0a;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .gk-body p {
+      color: #d1d1d6;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+    .terminal-command-widget {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #ff9f0a;
+    }
+    .btn-copy-command {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-copy-command:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* ===== FAQ ACCORDION ===== */
+    .faq-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .faq-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .faq-card:hover {
+      border-color: var(--border-hover);
+    }
+    .faq-question {
+      padding: 1.25rem 1.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .faq-toggle-icon {
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--accent);
+      transition: transform 0.2s ease;
+    }
+    .faq-card.open .faq-toggle-icon {
+      transform: rotate(45deg);
+    }
+    .faq-answer {
+      display: none;
+      padding: 0 1.5rem 1.25rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 0.85rem;
+    }
+    .faq-card.open .faq-answer {
+      display: block;
+    }
+
+    /* ===== BOTTOM CTA BANNER ===== */
+    .cta-banner {
+      background: linear-gradient(180deg, rgba(10, 132, 255, 0.1) 0%, rgba(10, 132, 255, 0.02) 100%);
+      border: 1px solid rgba(10, 132, 255, 0.25);
+      border-radius: var(--radius-lg);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      margin: 3rem 0;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+    .cta-banner h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+    .cta-banner p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 500px;
+      margin: 0 auto 2rem;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      background: rgba(9, 13, 22, 0.9);
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-links a:hover {
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <img src="assets/AppIcon.png" alt="DefaultBrowserChanger Icon" class="brand-icon">
+        <span>DefaultBrowserChanger</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#setup">Setup Guide</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
+      <div class="nav-actions">
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases/latest/download/DefaultBrowserChanger.zip" class="btn-nav-download">Download .zip</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <header class="hero">
+    <div class="container">
+      <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases/tag/v1.1.1" target="_blank" class="badge-pill">
+        <span>✨ v1.1.1 Released • macOS 12 Monterey or newer</span>
+      </a>
+
+      <h1 class="hero-title">
+        Switch Browsers at the<br>Speed of Thought.
+      </h1>
+
+      <p class="hero-subtitle">
+        A native macOS menu bar utility with an instant 0.001s Link Interceptor. Switch default browsers with a single click or a universal shortcut.
+      </p>
+
+      <div class="hero-cta-group">
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases/latest/download/DefaultBrowserChanger.zip" class="btn-primary">
+          <span>⬇ Download for macOS</span>
+          <span style="opacity: 0.7; font-size: 0.78rem; font-weight: normal;">(v1.1.1 .zip)</span>
+        </a>
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger" target="_blank" rel="noopener" class="btn-secondary">
+          <span>★ Star on GitHub</span>
+        </a>
+      </div>
+
+      <!-- VISUAL SHOWCASE (MENU BAR + DROPDOWN) -->
+      <div class="showcase-window">
+        <div class="mac-menubar">
+          <div class="menubar-left">
+            <span class="apple-logo"></span>
+            <span class="app-name">Finder</span>
+            <span>File</span>
+            <span>Edit</span>
+            <span>View</span>
+            <span>Go</span>
+            <span>Window</span>
+            <span>Help</span>
+          </div>
+          <div class="menubar-right">
+            <div class="menubar-active-pill">
+              <span>🌐 Arc</span>
+            </div>
+            <span class="hotkey-badge">⌃⌥B</span>
+            <span>100%</span>
+            <span>Mon 19:20</span>
+          </div>
+        </div>
+
+        <div class="showcase-content">
+          <div class="dropdown-image-wrap">
+            <img src="assets/dropdown_menu.png" alt="DefaultBrowserChanger Menu Bar Dropdown">
+          </div>
+          <div class="showcase-text">
+            <h3>Always in Your Menu Bar</h3>
+            <p>
+              Runs quietly as an <code>LSUIElement</code> application. No Dock clutter, zero memory overhead, and instant switching between all your favorite browsers.
+            </p>
+            <ul class="showcase-features-list">
+              <li><span class="bullet-check">✓</span> <strong>Single-Click Switch:</strong> Toggle between Safari, Arc, Chrome, Brave, and Edge.</li>
+              <li><span class="bullet-check">✓</span> <strong>Global Hotkey (⌃⌥B):</strong> Summon the switcher without moving your hands.</li>
+              <li><span class="bullet-check">✓</span> <strong>Instant Dispatch:</strong> Zero-latency proxy URL routing for clicked links.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FEATURES SECTION -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Capabilities</div>
+        <h2 class="section-title">Engineered for Frictionless Browsing</h2>
+        <p class="section-desc">Everything you need to juggle multiple browsers without touching macOS settings every time.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-icon">⚡️</div>
+          <h4>0.001s Link Interceptor</h4>
+          <p>Acts as an instant native URL proxy. Links clicked in Slack, Mail, WhatsApp, or Discord immediately open in your currently chosen browser.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">⌨️</div>
+          <h4>Global Hotkey (⌃⌥B)</h4>
+          <p>Pop the switcher menu anywhere across multiple displays and macOS spaces without reaching for your mouse.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🔍</div>
+          <h4>Auto Browser Discovery</h4>
+          <p>Automatically scans and displays Safari, Arc, Chrome, Brave, Firefox, Edge, Orion, Zen, Vivaldi, and any custom web handler.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🍃</div>
+          <h4>Lightweight & LSUIElement</h4>
+          <p>Lives purely in your top menu bar with zero Dock icon clutter. Consumes under 12MB RAM with 0% idle CPU footprint.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🛡️</div>
+          <h4>Zero Permissions Required</h4>
+          <p>No Accessibility permissions, no screen recording, and no root/sudo privileges needed. Completely sandboxed Cocoa.</p>
+        </div>
+
+        <div class="feat-card">
+          <div class="feat-icon">🔒</div>
+          <h4>100% Private & Open Source</h4>
+          <p>Zero telemetry, zero tracking, zero external network requests. Inspect every single line of native Swift on GitHub.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETUP GUIDE SECTION -->
+  <section class="section" id="setup" style="background: rgba(255, 255, 255, 0.015); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Quickstart</div>
+        <h2 class="section-title">Set Up in 10 Seconds</h2>
+        <p class="section-desc">Make DefaultBrowserChanger your default browser once. It dynamically handles the rest.</p>
+      </div>
+
+      <div class="setup-steps-row">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-content">
+            <div class="step-number-pill">1</div>
+            <h4>Open System Settings</h4>
+            <p>Open <strong>System Settings</strong> and navigate to <strong>Desktop & Dock</strong> in the sidebar.</p>
+          </div>
+          <div class="step-image-wrap">
+            <img src="assets/step1_open_settings.png" alt="Step 1: Open System Settings" class="step-image">
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-content">
+            <div class="step-number-pill">2</div>
+            <h4>Locate Default Browser</h4>
+            <p>Scroll down to the <strong>Default web browser</strong> dropdown menu.</p>
+          </div>
+          <div class="step-image-wrap">
+            <img src="assets/step2_search_browser.png" alt="Step 2: Locate Default Browser" class="step-image">
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-content">
+            <div class="step-number-pill">3</div>
+            <h4>Select the App</h4>
+            <p>Select <strong>DefaultBrowserChanger</strong> as your system default browser.</p>
+          </div>
+          <div class="step-image-wrap">
+            <img src="assets/step3_select_browser.png" alt="Step 3: Select DefaultBrowserChanger" class="step-image">
+          </div>
+        </div>
+      </div>
+
+      <!-- Gatekeeper Callout -->
+      <div class="gatekeeper-box">
+        <div class="gk-icon-wrap">💡</div>
+        <div class="gk-body">
+          <h4>First-Time macOS Gatekeeper Notice</h4>
+          <p>
+            Because DefaultBrowserChanger is free and open-source without an expensive Apple Developer ID notary subscription, macOS Gatekeeper may show a warning on first launch. Simply run this one-line command in Terminal to clear the quarantine flag:
+          </p>
+          <div class="terminal-command-widget">
+            <span id="cmd-text">xattr -cr /Applications/DefaultBrowserChanger.app</span>
+            <button class="btn-copy-command" onclick="copyCommand()">Copy Command</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ SECTION -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">FAQ</div>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <p class="section-desc">Got questions about how DefaultBrowserChanger works under the hood? Here are the answers.</p>
+      </div>
+
+      <div class="faq-wrapper">
+        <div class="faq-card open">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Why do I need to set DefaultBrowserChanger as the macOS default?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            DefaultBrowserChanger acts as a high-speed (0.001s) URL proxy. By being the system default, it catches all outgoing links from apps like Slack, Mail, or WhatsApp, and instantly dispatches them to whichever browser you've currently activated in the menu bar.
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Why does macOS show a Gatekeeper warning on first launch?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            DefaultBrowserChanger is a free, independent open-source project without a paid Apple Developer notary certificate. Running <code>xattr -cr /Applications/DefaultBrowserChanger.app</code> strips the quarantine attribute. The entire Swift source code is public on GitHub for you to audit.
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Which web browsers are supported?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            All major browsers including Safari, Google Chrome, Arc, Brave, Firefox, Microsoft Edge, Opera, Orion, Zen, Vivaldi, and any browser registered as an HTTP/HTTPS handler in macOS.
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>Does it slow down link opening?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Not at all. Link routing uses native macOS <code>NSWorkspace.shared.open</code> calls with direct bundle identifiers, taking less than 1 millisecond. You won't notice any latency compared to opening directly.
+          </div>
+        </div>
+
+        <div class="faq-card">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>How do I uninstall DefaultBrowserChanger completely?</span>
+            <span class="faq-toggle-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            Simply change your default web browser in System Settings back to Safari or Chrome, and move DefaultBrowserChanger.app from <code>/Applications</code> to Trash. It leaves zero daemons, background agents, or configuration files behind.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA BANNER -->
+  <section class="container">
+    <div class="cta-banner">
+      <h3>Ready to Take Control of Your Links?</h3>
+      <p>Download DefaultBrowserChanger for macOS today. 100% free, private, and open source.</p>
+      <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases/latest/download/DefaultBrowserChanger.zip" class="btn-primary">
+        <span>⬇ Download for macOS (v1.1.1)</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container footer-inner">
+      <div>
+        <span>DefaultBrowserChanger &copy; 2026. Built with ❤️ by <a href="https://github.com/bsormagec" target="_blank" rel="noopener" style="color:#f5f5f7;">bsormagec</a>.</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger/blob/main/LICENSE" target="_blank">MIT License</a>
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger" target="_blank">GitHub</a>
+        <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases" target="_blank">Releases</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleFaq(el) {
+      const card = el.parentElement;
+      card.classList.toggle('open');
+    }
+
+    function copyCommand() {
+      const cmd = document.getElementById('cmd-text').innerText;
+      navigator.clipboard.writeText(cmd).then(() => {
+        const btn = document.querySelector('.btn-copy-command');
+        const orig = btn.innerText;
+        btn.innerText = 'Copied! ✓';
+        btn.style.background = '#34c759';
+        setTimeout(() => {
+          btn.innerText = orig;
+          btn.style.background = '';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
