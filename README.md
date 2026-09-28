@@ -1,50 +1,131 @@
-# DefaultBrowserChanger 🌐
+<p align="center">
+  <img src="Resources/AppIcon.png" width="128" height="128" alt="DefaultBrowserChanger Icon">
+</p>
 
-macOS menü çubuğundan (tray) tek tıkla varsayılan web tarayıcısını değiştirmeyi sağlayan ultra hafif, yerel (native) bir menü çubuğu aracı.
+<h1 align="center">DefaultBrowserChanger</h1>
+
+<p align="center">
+  <b>Instant default web browser switching right from your macOS menu bar.</b>
+</p>
+
+<p align="center">
+  <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases"><img src="https://img.shields.io/github/v/release/bsormagec/DefaultBrowserChanger?style=flat-square&color=blue" alt="Latest Release"></a>
+  <a href="https://github.com/bsormagec/DefaultBrowserChanger/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT License"></a>
+  <img src="https://img.shields.io/badge/macOS-13.0%2B-black?style=flat-square&logo=apple" alt="macOS 13.0+">
+  <img src="https://img.shields.io/badge/Swift-5.10%2B-F05138?style=flat-square&logo=swift" alt="Swift 5.10+">
+  <a href="https://github.com/bsormagec/DefaultBrowserChanger/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/bsormagec/DefaultBrowserChanger/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status"></a>
+</p>
+
+<br>
+
+<p align="center">
+  <img src="docs/assets/dropdown_menu.png" width="280" alt="DefaultBrowserChanger Dropdown Demo">
+</p>
 
 ---
 
-## ✨ Özellikler
+## ⚡ The Problem
 
-- **🌍 Şık Menü Çubuğu İkonu:** macOS menü çubuğunda sabit, modern ve temaya (Light / Dark mode) otomatik uyum sağlayan Globe ikonu.
-- **🚀 Tek Tıkla Geçiş:** Yüklü tarayıcılar (Google Chrome, Safari, Arc, Brave, Firefox, Microsoft Edge, Comet, BrowserOS vb.) gerçek logolarıyla listelenir; tıkladığınız an varsayılan tarayıcı değişir.
-- **⚡ Anında & Otomatik Onay:** macOS Sonoma ve Sequoia'nın güvenlik penceresi arka planda otomatik onaylanarak 0.1 saniye içinde pürüzsüz geçiş sağlanır.
-- **🔔 Bildirim & Sesli Geri Bildirim:** Tarayıcı değiştiğinde macOS bildirimi ve zarif bir sesle durum bildirilir.
-- **🔄 Launch at Login (Açılışta Otomatik Başlatma):** Menüden açılıp kapatılabilen, macOS `SMAppService` tabanlı yerel otomatik başlatma desteği.
-- **⚙️ Sistem Ayarları Kısayolu:** Tek tıkla macOS Masaüstü ve Dock ayarlarına gitme imkanı.
-- **🪶 Sıfır Yük (Pure Native Swift):** Harici framework gerektirmez, 2 MB'tan küçük boyut, sıfır CPU ve RAM kullanımı.
+On modern macOS, switching your default browser requires:
+1. Opening **System Settings**
+2. Navigating to **Desktop & Dock**
+3. Scrolling all the way down to find the **Default web browser** dropdown
+4. Selecting the browser and confirming macOS dialogs
+
+If you frequently test web applications across Safari, Chrome, Arc, Brave, Firefox, Edge, or developer browsers, this workflow is slow and disruptive.
+
+## ✨ The Solution
+
+**DefaultBrowserChanger** lives quietly in your menu bar (tray) as an elegant Globe icon:
+- 🎯 **One-Click Switch:** Click the Globe, choose any installed browser, done.
+- 🎨 **Native Colorful Icons:** Real high-resolution app icons displayed beside each browser.
+- ⚡ **Seamless Auto-Confirmation:** Automatically handles macOS security prompts in the background for a frictionless experience.
+- 🚀 **Launch at Login:** Built-in `SMAppService` toggle so it's always ready when you turn on your Mac.
+- 🪶 **Zero Bloat:** Pure native Swift with AppKit and LaunchServices. Consumes under 15MB RAM and 0% CPU.
+- 🔒 **100% Private & Offline:** No network access, no telemetry, no tracking.
 
 ---
 
-## 🛠️ Kurulum & Derleme
+## 📥 Installation
 
-Uygulamayı derlemek ve doğrudan `/Applications` klasörünüze yüklemek için terminalde şu komutu çalıştırmanız yeterlidir:
+### Option 1: Download from GitHub Releases (Recommended)
+1. Go to the [Releases](https://github.com/bsormagec/DefaultBrowserChanger/releases) page.
+2. Download `DefaultBrowserChanger.zip`.
+3. Unzip and drag `DefaultBrowserChanger.app` into your `/Applications` folder.
+4. Open the app. The Globe icon will appear in your menu bar!
+
+### Option 2: Build & Install from Source
+Ensure you have Xcode Command Line Tools installed (`xcode-select --install`).
 
 ```bash
-# Derle ve /Applications klasörüne yükle
+git clone https://github.com/bsormagec/DefaultBrowserChanger.git
+cd DefaultBrowserChanger
+
+# Build and install directly to /Applications
 ./build.sh --install
-```
 
-Ardından uygulamayı başlatmak için:
-
-```bash
+# Launch the app
 open /Applications/DefaultBrowserChanger.app
 ```
 
 ---
 
-## 📋 Kullanım
+## 🖥️ Usage
 
-1. Menü çubuğundaki **Globe (Dünya)** ikonuna tıklayın.
-2. Açılan menüde o anki varsayılan tarayıcınızın yanında onay işareti (`✓`) göreceksiniz.
-3. Geçmek istediğiniz tarayıcıya tıklayın:
-   - Varsayılan tarayıcı anında değişir.
-   - Onay işareti yeni tarayıcıya geçer.
-   - Bildirim görünür.
-4. **Launch at Login** seçeneğini işaretleyerek Mac'inizi her açtığınızda aracın hazır olmasını sağlayabilirsiniz.
+1. Click the **Globe (🌐)** icon in the top right menu bar.
+2. The current default browser is marked with a checkmark (`✓`).
+3. Click any browser in the list to switch immediately.
+4. You will receive a subtle macOS notification and sound feedback confirming the change.
+
+### Quick Actions Included:
+- **Launch at Login:** Automatically launches on system startup.
+- **Open in System Settings...:** Direct shortcut to Desktop & Dock preferences.
+- **Refresh Browsers:** Rescans your system for newly installed browsers.
+- **Quit:** Clean exit (`⌘Q`).
 
 ---
 
-## 🔒 Güvenlik & İzinler
+## 🔒 Permissions & Security
 
-macOS Sequoia / Sonoma, varsayılan tarayıcı değişimini korumalı bir işlem olarak ele alır. `DefaultBrowserChanger`, değişikliği otomatik olarak tamamlayabilmek için AppleScript / Accessibility API'sini kullanır. İlk kullanımda macOS bir kez onay isteyebilir; onay verdikten sonra tüm geçişler tamamen sessiz ve anında gerçekleşir.
+macOS considers the default browser preference protected. `DefaultBrowserChanger` uses `LaunchServices` and background AppleScript via System Events to confirm the selection automatically.
+
+- Upon the first switch, macOS may prompt: *"DefaultBrowserChanger would like to control System Events"*.
+- Click **Allow** to enable instant 1-click silent switching.
+- If permission is denied, macOS will simply display its standard one-click confirmation dialog on screen.
+
+---
+
+## 🏗️ Architecture
+
+```
+DefaultBrowserChanger/
+├── Sources/
+│   ├── Models/
+│   │   └── BrowserApp.swift          # Browser data model
+│   ├── Services/
+│   │   ├── BrowserManager.swift      # Discovery, filtering, & LaunchServices switcher
+│   │   └── SystemHelper.swift        # Launch at Login, notifications, & sound
+│   ├── UI/
+│   │   └── MenuBarController.swift   # NSStatusItem, template icon, & dynamic NSMenu
+│   ├── AppDelegate.swift             # App lifecycle & notification delegate
+│   └── main.swift                    # NSApplication activation policy (.accessory)
+├── Resources/
+│   ├── Info.plist                    # LSUIElement = true (pure menu bar agent)
+│   ├── AppIcon.icns                  # Multi-resolution macOS icon bundle
+│   └── AppIcon.png                   # 1024x1024 Retina asset
+├── Tests/
+│   └── TestBrowserDetection.swift    # Verification suite
+├── build.sh                          # Automated compilation and install script
+└── docs/
+    └── assets/                       # Screenshots and demo assets
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on code style, build instructions, and the pull request process.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

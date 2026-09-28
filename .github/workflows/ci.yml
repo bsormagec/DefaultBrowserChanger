@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Verify Environment
+        run: |
+          sw_vers
+          swift --version
+
+      - name: Build Application Bundle
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Verify Code Signature
+        run: |
+          codesign -v build/DefaultBrowserChanger.app
+
+      - name: Run Tests
+        run: |
+          swift Tests/TestBrowserDetection.swift

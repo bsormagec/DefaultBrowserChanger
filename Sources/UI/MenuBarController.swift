@@ -68,9 +68,7 @@ public class MenuBarController: NSObject, NSMenuDelegate {
                 item.image = browser.icon
                 item.representedObject = browser.id
                 item.state = browser.isDefault ? .on : .off
-                if #available(macOS 27.0, *) {
-                    item.preferredImageVisibility = .visible
-                } else if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
+                if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
                     item.setValue(1, forKey: "preferredImageVisibility")
                 }
                 menu.addItem(item)
