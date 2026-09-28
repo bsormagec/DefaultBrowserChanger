@@ -42,7 +42,7 @@ public class HotkeyManager: NSObject {
         var eventType = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
 
         let handlerResult = InstallEventHandler(
-            GetApplicationEventTarget(),
+            GetEventDispatcherTarget(),
             { (_, event, _) -> OSStatus in
                 HotkeyManager.shared.handleHotkeyTrigger()
                 return noErr
@@ -66,7 +66,7 @@ public class HotkeyManager: NSObject {
             keyCode,
             modifiers,
             hotKeyID,
-            GetApplicationEventTarget(),
+            GetEventDispatcherTarget(),
             0,
             &hotKeyRef
         )

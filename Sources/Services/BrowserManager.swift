@@ -136,19 +136,25 @@ public class BrowserManager {
                         tell process "CoreServicesUIAgent"
                             if (count of windows) > 0 then
                                 repeat with w in windows
-                                    -- 1. Try finding and clicking the default action button directly
+                                    -- Strategy 1: Explicit default button attribute or subrole
                                     try
-                                        set defBtn to (first button of w whose subrole is "AXDefaultButton" or value of attribute "AXDefaultButton" is true)
+                                        set defBtn to (first button of w whose subrole is "AXDefaultButton" or value of attribute "AXDefaultButton" is true or subrole is "AXConfirmButton")
                                         click defBtn
                                         exit repeat
                                     end try
-                                    -- 2. Try AXPress action on default button
+                                    -- Strategy 2: Button with default role description
                                     try
-                                        tell w to perform action "AXPress" of (first button of w whose subrole is "AXDefaultButton")
+                                        set defBtn to (first button of w whose role description is "default button")
+                                        click defBtn
+                                        exit repeat
+                                    end try
+                                    -- Strategy 3: Primary action button in NSAlert hierarchy
+                                    try
+                                        click button 1 of w
                                         exit repeat
                                     end try
                                 end repeat
-                                -- 3. Fallback: send Return key code which macOS maps to the primary default button
+                                -- Strategy 4: Return key code fallback
                                 try
                                     key code 36
                                 end try
