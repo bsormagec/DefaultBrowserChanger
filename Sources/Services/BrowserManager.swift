@@ -136,16 +136,22 @@ public class BrowserManager {
                         tell process "CoreServicesUIAgent"
                             if (count of windows) > 0 then
                                 repeat with w in windows
-                                    repeat with b in (buttons of w)
-                                        set bName to (name of b) as text
-                                        if bName starts with "Use" or bName contains "Kullan" or (bName does not start with "Keep" and bName does not start with "Vazgeç" and bName does not start with "Cancel" and bName does not start with "Sürdür") then
-                                            try
-                                                click b
-                                                exit repeat
-                                            end try
-                                        end if
-                                    end repeat
+                                    -- 1. Try finding and clicking the default action button directly
+                                    try
+                                        set defBtn to (first button of w whose subrole is "AXDefaultButton" or value of attribute "AXDefaultButton" is true)
+                                        click defBtn
+                                        exit repeat
+                                    end try
+                                    -- 2. Try AXPress action on default button
+                                    try
+                                        tell w to perform action "AXPress" of (first button of w whose subrole is "AXDefaultButton")
+                                        exit repeat
+                                    end try
                                 end repeat
+                                -- 3. Fallback: send Return key code which macOS maps to the primary default button
+                                try
+                                    key code 36
+                                end try
                                 exit repeat
                             end if
                         end tell
