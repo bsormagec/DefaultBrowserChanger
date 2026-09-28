@@ -120,7 +120,16 @@ public class BrowserManager {
         return browsers
     }
 
+    private var isSwitching = false
+
     public func setDefaultBrowser(bundleId: String, completion: @escaping (Bool) -> Void) {
+        if isSwitching {
+            NSLog("BrowserManager: Already switching default browser, ignoring concurrent call")
+            completion(false)
+            return
+        }
+        isSwitching = true
+
         NSLog("BrowserManager: Setting default browser to %@", bundleId)
         let res1 = LSSetDefaultHandlerForURLScheme("http" as CFString, bundleId as CFString)
         let res2 = LSSetDefaultHandlerForURLScheme("https" as CFString, bundleId as CFString)
@@ -131,38 +140,20 @@ public class BrowserManager {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let scriptSource = """
             tell application "System Events"
-                repeat 30 times
+                repeat 40 times
                     if exists (process "CoreServicesUIAgent") then
                         tell process "CoreServicesUIAgent"
-                            if (count of windows) > 0 then
-                                repeat with w in windows
-                                    -- Strategy 1: Explicit default button attribute or subrole
-                                    try
-                                        set defBtn to (first button of w whose subrole is "AXDefaultButton" or value of attribute "AXDefaultButton" is true or subrole is "AXConfirmButton")
-                                        click defBtn
-                                        exit repeat
-                                    end try
-                                    -- Strategy 2: Button with default role description
-                                    try
-                                        set defBtn to (first button of w whose role description is "default button")
-                                        click defBtn
-                                        exit repeat
-                                    end try
-                                    -- Strategy 3: Primary action button in NSAlert hierarchy
-                                    try
-                                        click button 1 of w
-                                        exit repeat
-                                    end try
-                                end repeat
-                                -- Strategy 4: Return key code fallback
+                            repeat while (count of windows) > 0
                                 try
-                                    key code 36
+                                    click button 1 of window 1
+                                on error
+                                    exit repeat
                                 end try
-                                exit repeat
-                            end if
+                                delay 0.05
+                            end repeat
                         end tell
                     end if
-                    delay 0.04
+                    delay 0.05
                 end repeat
             end tell
             """
@@ -180,6 +171,7 @@ public class BrowserManager {
             let isSuccess = (self?.getCurrentDefaultBrowserBundleId() == bundleId)
             NSLog("BrowserManager: Verification success = %d", isSuccess ? 1 : 0)
             DispatchQueue.main.async {
+                self?.isSwitching = false
                 completion(isSuccess)
             }
         }

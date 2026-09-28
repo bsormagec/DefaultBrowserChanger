@@ -89,7 +89,16 @@ public class HotkeyManager: NSObject {
         }
     }
 
+    private var lastTriggerTime: TimeInterval = 0
+
     private func handleHotkeyTrigger() {
+        let now = ProcessInfo.processInfo.systemUptime
+        guard now - lastTriggerTime > 0.8 else {
+            NSLog("HotkeyManager: Debouncing rapid hotkey press (interval: %.2fs)", now - lastTriggerTime)
+            return
+        }
+        lastTriggerTime = now
+
         DispatchQueue.main.async {
             BrowserManager.shared.cycleNextDefaultBrowser { browser in
                 guard let browser = browser else { return }
