@@ -26,10 +26,10 @@ public class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     private func updateTooltip() {
-        let currentBundleId = BrowserManager.shared.getCurrentDefaultBrowserBundleId()
+        let activeBundleId = LinkRouter.shared.activeBrowserId
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
-        let currentName = browsers.first(where: { $0.id == currentBundleId })?.name ?? "Web Browser"
-        statusItem.button?.toolTip = "Default Browser: \(currentName)"
+        let currentName = browsers.first(where: { $0.id == activeBundleId })?.name ?? "Web Browser"
+        statusItem.button?.toolTip = "Active Browser: \(currentName)"
     }
 
     // MARK: - NSMenuDelegate
@@ -39,19 +39,19 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         updateTooltip()
 
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
-        let currentDefaultBundleId = BrowserManager.shared.getCurrentDefaultBrowserBundleId()
+        let activeBundleId = LinkRouter.shared.activeBrowserId
 
-        let currentBrowser = browsers.first(where: { $0.id == currentDefaultBundleId })
-        let currentName = currentBrowser?.name ?? (currentDefaultBundleId != nil ? "Detected" : "None")
+        let currentBrowser = browsers.first(where: { $0.id == activeBundleId })
+        let currentName = currentBrowser?.name ?? "Detected"
 
-        // Header item showing active default browser
-        let headerItem = NSMenuItem(title: "Default: \(currentName)", action: nil, keyEquivalent: "")
+        // Header item showing active browser
+        let headerItem = NSMenuItem(title: "Active: \(currentName)", action: nil, keyEquivalent: "")
         headerItem.isEnabled = false
         let headerAttributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.boldSystemFont(ofSize: 12),
             .foregroundColor: NSColor.secondaryLabelColor
         ]
-        headerItem.attributedTitle = NSAttributedString(string: "Default: \(currentName)", attributes: headerAttributes)
+        headerItem.attributedTitle = NSAttributedString(string: "Active: \(currentName)", attributes: headerAttributes)
         menu.addItem(headerItem)
 
         menu.addItem(NSMenuItem.separator())
@@ -67,7 +67,7 @@ public class MenuBarController: NSObject, NSMenuDelegate {
                 item.target = self
                 item.image = browser.icon
                 item.representedObject = browser.id
-                item.state = browser.isDefault ? .on : .off
+                item.state = (browser.id == activeBundleId) ? .on : .off
                 if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
                     item.setValue(1, forKey: "preferredImageVisibility")
                 }
@@ -119,20 +119,12 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         let browserName = sender.title
         NSLog("MenuBarController: Selected browser %@ (%@)", browserName, bundleId)
 
-        let currentDefault = BrowserManager.shared.getCurrentDefaultBrowserBundleId()
-        if bundleId == currentDefault {
-            SystemHelper.shared.playFeedbackSound()
-            return
-        }
-
-        BrowserManager.shared.setDefaultBrowser(bundleId: bundleId) { [weak self] success in
-            NSLog("MenuBarController: Set default browser result = %d", success ? 1 : 0)
-            self?.updateTooltip()
-            SystemHelper.shared.postNotification(
-                title: "Default Browser Changed",
-                message: "\(browserName) is now your default web browser."
-            )
-        }
+        LinkRouter.shared.selectBrowser(bundleId: bundleId)
+        updateTooltip()
+        SystemHelper.shared.postNotification(
+            title: "Active Browser Changed",
+            message: "\(browserName) is now your active browser."
+        )
     }
 
     @objc func toggleLaunchAtLogin(_ sender: NSMenuItem) {

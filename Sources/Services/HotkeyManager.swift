@@ -100,12 +100,12 @@ public class HotkeyManager: NSObject {
         lastTriggerTime = now
 
         DispatchQueue.main.async {
-            BrowserManager.shared.cycleNextDefaultBrowser { browser in
+            LinkRouter.shared.cycleNextBrowser { browser in
                 guard let browser = browser else { return }
 
                 SystemHelper.shared.postNotification(
-                    title: "Default Browser Changed",
-                    message: "\(browser.name) is now your default browser. (via ⌃⌥B)"
+                    title: "Active Browser Changed",
+                    message: "\(browser.name) is now your active browser. (via ⌃⌥B)"
                 )
             }
         }
