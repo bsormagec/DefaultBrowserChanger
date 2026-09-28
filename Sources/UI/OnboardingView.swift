@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct OnboardingView: View {
-    @State private var isAccessibilityGranted: Bool = SystemHelper.shared.isAccessibilityGranted
+    @State private var isDefaultBrowser: Bool = SystemHelper.shared.isDefaultBrowser
     @State private var isLaunchAtLoginEnabled: Bool = SystemHelper.shared.isLaunchAtLoginEnabled
     public var onDismiss: () -> Void
 
@@ -22,44 +22,27 @@ public struct OnboardingView: View {
                 Text("Welcome to DefaultBrowserChanger")
                     .font(.system(size: 20, weight: .bold))
 
-                Text("1-Click Default Browser Switching for macOS")
+                Text("Instant Default Browser Switching for macOS")
                     .font(.system(size: 13))
                     .foregroundColor(.secondary)
             }
             .padding(.top, 8)
 
             // Features List
-            VStack(alignment: .leading, spacing: 16) {
-                // Item 1: Menu Bar Location
+            VStack(alignment: .leading, spacing: 18) {
+                // Item 1: Set as Default Browser
                 HStack(alignment: .top, spacing: 14) {
-                    Image(systemName: "menubar.rectangle")
-                        .font(.system(size: 20))
-                        .foregroundColor(.blue)
+                    Image(systemName: isDefaultBrowser ? "checkmark.seal.fill" : "gearshape.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundColor(isDefaultBrowser ? .green : .blue)
                         .frame(width: 28, height: 28)
 
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Always in Your Menu Bar")
-                            .font(.system(size: 14, weight: .semibold))
-                        Text("Click the globe icon in your menu bar at any time to switch your default browser instantly.")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                }
-
-                // Item 2: Accessibility Permission
-                HStack(alignment: .top, spacing: 14) {
-                    Image(systemName: isAccessibilityGranted ? "checkmark.shield.fill" : "hand.tap.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(isAccessibilityGranted ? .green : .orange)
-                        .frame(width: 28, height: 28)
-
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text("1-Click Auto-Confirmation")
+                            Text("1. Set as Default Browser")
                                 .font(.system(size: 14, weight: .semibold))
                             Spacer()
-                            if isAccessibilityGranted {
+                            if isDefaultBrowser {
                                 HStack(spacing: 4) {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundColor(.green)
@@ -72,15 +55,32 @@ public struct OnboardingView: View {
                                 .background(Color.green.opacity(0.12))
                                 .cornerRadius(12)
                             } else {
-                                Button("Grant Permission") {
-                                    SystemHelper.shared.requestAccessibilityPermission()
+                                Button("Open Settings") {
+                                    SystemHelper.shared.openDesktopAndDockSettings()
                                 }
                                 .buttonStyle(.borderedProminent)
                                 .controlSize(.small)
                             }
                         }
 
-                        Text("macOS prompts to confirm browser changes. Accessibility permission lets the app auto-confirm in 0.05s for a true 1-click experience.")
+                        Text("In System Settings → Desktop & Dock, choose DefaultBrowserChanger.app in the 'Default web browser' dropdown.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+
+                // Item 2: Global Hotkey
+                HStack(alignment: .top, spacing: 14) {
+                    Image(systemName: "keyboard")
+                        .font(.system(size: 20))
+                        .foregroundColor(.indigo)
+                        .frame(width: 28, height: 28)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("2. Instant Hotkey Switching (⌃⌥B)")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("Press Control + Option + B anywhere to cycle through installed browsers instantly, with zero prompts and audio feedback.")
                             .font(.system(size: 12))
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -94,9 +94,9 @@ public struct OnboardingView: View {
                         .foregroundColor(.purple)
                         .frame(width: 28, height: 28)
 
-                    VStack(alignment: .leading, spacing: 3) {
+                    VStack(alignment: .leading, spacing: 4) {
                         HStack {
-                            Text("Launch at Login")
+                            Text("3. Launch at Login")
                                 .font(.system(size: 14, weight: .semibold))
                             Spacer()
                             Toggle("", isOn: $isLaunchAtLoginEnabled)
@@ -107,7 +107,7 @@ public struct OnboardingView: View {
                                 }
                         }
 
-                        Text("Automatically start DefaultBrowserChanger in your menu bar when you log in.")
+                        Text("Start DefaultBrowserChanger quietly in your menu bar when you log in.")
                             .font(.system(size: 12))
                             .foregroundColor(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
@@ -130,7 +130,7 @@ public struct OnboardingView: View {
             .keyboardShortcut(.defaultAction)
         }
         .padding(24)
-        .frame(width: 480, height: 460)
+        .frame(width: 480, height: 470)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             refreshState()
         }
@@ -140,7 +140,7 @@ public struct OnboardingView: View {
     }
 
     private func refreshState() {
-        isAccessibilityGranted = SystemHelper.shared.isAccessibilityGranted
+        isDefaultBrowser = SystemHelper.shared.isDefaultBrowser
         isLaunchAtLoginEnabled = SystemHelper.shared.isLaunchAtLoginEnabled
     }
 }

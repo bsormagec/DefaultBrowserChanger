@@ -39,12 +39,30 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 **DefaultBrowserChanger** lives quietly in your menu bar (tray) as an elegant Globe icon:
 - 🎯 **One-Click Switch:** Click the Globe, choose any installed browser, done.
 - ⌨️ **Global Shortcut (`⌃⌥B`):** Cycle through installed browsers instantly from your keyboard without reaching for the mouse.
+- ⚡ **Zero-Prompt Proxy:** 100% native Swift URL routing (0.001s). Zero popups, zero system dialogs, and **zero accessibility permissions**.
 - 🎨 **Native Colorful Icons:** Real high-resolution app icons displayed beside each browser.
-- ⚡ **Resilient Auto-Confirmation:** Automatically and silently confirms macOS prompts in 0.05s across all macOS languages.
-- 🧭 **Welcome Guide:** Modern single-card onboarding wizard on first launch, accessible anytime from the menu bar.
+- 🧭 **Built-in Welcome Guide:** Helpful setup card on first launch, accessible anytime from the menu bar.
+- 🛡️ **Single-Instance Guard:** Dual PID and POSIX `flock` file locking ensures only one instance ever runs.
 - 🚀 **Launch at Login:** Built-in `SMAppService` toggle so it's always ready when you turn on your Mac.
 - 🪶 **Zero Bloat:** Pure native Swift with AppKit and SwiftUI. Consumes under 15MB RAM and 0% CPU.
 - 🔒 **100% Private & Offline:** No network access, no telemetry, no tracking.
+
+---
+
+## ⚡ 1-Minute One-Time Setup
+
+To allow DefaultBrowserChanger to route your links instantly to your chosen browser, set it as your default web browser in macOS once:
+
+1. Open **System Settings** → **Desktop & Dock** (or search *"Default web browser"*).
+2. In the **Default web browser** dropdown, choose **`DefaultBrowserChanger.app`**.
+3. Confirm the one-time macOS prompt (*Use "DefaultBrowserChanger"*).
+
+<p align="center">
+  <img src="docs/assets/system_settings_browser.png" width="620" alt="Select DefaultBrowserChanger in macOS System Settings">
+</p>
+
+> [!TIP]
+> For detailed instructions, check the complete [Setup Guide & User Manual](docs/SETUP_GUIDE.md).
 
 ---
 
@@ -61,8 +79,8 @@ When clicking an email verification, a Slack link, or an app's **"Sign in with G
 - ❌ Failed OAuth redirects and session mix-ups.
 - ❌ Annoying manual URL copying and pasting between windows.
 
-### The Fix: Switch in 0.5 Seconds
-With **DefaultBrowserChanger**, you click the Globe, select the browser where your active session lives, and click the link. The exact browser you want captures the authentication callback immediately — no profile switching, no URL copying, no friction.
+### The Fix: Switch in 0.001 Seconds
+With **DefaultBrowserChanger**, press `⌃⌥B` or click the Globe, select the browser where your active session lives, and click the link. The exact browser you want captures the authentication callback immediately — no profile switching, no URL copying, no friction.
 
 ---
 
@@ -72,7 +90,7 @@ With **DefaultBrowserChanger**, you click the Globe, select the browser where yo
 1. Go to the [Releases](https://github.com/bsormagec/DefaultBrowserChanger/releases) page.
 2. Download `DefaultBrowserChanger.zip`.
 3. Unzip and drag `DefaultBrowserChanger.app` into your `/Applications` folder.
-4. Open the app. The Globe icon will appear in your menu bar!
+4. Open the app and follow the 1-minute setup above!
 
 ### Option 2: Build & Install from Source
 Ensure you have Xcode Command Line Tools installed (`xcode-select --install`).
@@ -93,15 +111,15 @@ open /Applications/DefaultBrowserChanger.app
 ## 🖥️ Usage
 
 1. Click the **Globe (🌐)** icon in the top right menu bar.
-2. The current default browser is marked with a checkmark (`✓`).
+2. The current active target browser is marked with a checkmark (`✓`).
 3. Click any browser in the list to switch immediately.
-4. You will receive a subtle macOS notification and sound feedback confirming the change.
+4. Or press **`Control + Option + B` (`⌃⌥B`)** anywhere to cycle to the next browser with sound feedback.
 
 ### Quick Actions Included:
 - **Cycle Shortcut (⌃⌥B):** Toggle the global shortcut on or off right from the menu.
 - **Launch at Login:** Automatically launches on system startup.
 - **Open in System Settings...:** Direct shortcut to Desktop & Dock preferences.
-- **Welcome Guide...:** Reopens the onboarding card anytime for permission status and guidance.
+- **Welcome Guide...:** Reopens the onboarding card anytime for guidance.
 - **Refresh Browsers:** Rescans your system for newly installed browsers.
 - **Quit:** Clean exit (`⌘Q`).
 
@@ -109,12 +127,13 @@ open /Applications/DefaultBrowserChanger.app
 
 ## 🔒 Permissions & Security
 
-macOS considers the default browser preference protected. `DefaultBrowserChanger` uses `LaunchServices` and background Accessibility automation via System Events to confirm the selection automatically in 0.05s.
+**Zero Special Permissions Required!**
 
-- Upon first launch, the built-in **Welcome Guide** explains why this permission is needed.
-- Click **Grant Permission** to open macOS Accessibility settings (`Privacy & Security > Accessibility`).
-- Once granted, switching default browsers is completely silent and instantaneous.
-- If permission is not granted, macOS simply displays its standard confirmation dialog on screen for manual confirmation.
+Unlike fragile UI automation or Accessibility-dependent solutions, `DefaultBrowserChanger` operates as a native link proxy (similar to Velja or Browserosaurus):
+- **No Accessibility Permissions (`AXIsProcessTrusted`):** Never needed.
+- **No Screen Recording / Keystroke Logging:** Completely unprivileged.
+- **No AppleScript UI clicking:** Built with 100% native Swift APIs (`NSWorkspace.shared.open`).
+- **No Network / Telemetry:** Operates entirely offline on your Mac.
 
 ---
 
@@ -126,27 +145,30 @@ DefaultBrowserChanger/
 │   ├── Models/
 │   │   └── BrowserApp.swift          # Browser data model
 │   ├── Services/
-│   │   ├── BrowserManager.swift      # Discovery, filtering, cycling & LaunchServices switcher
+│   │   ├── BrowserManager.swift      # Discovery, filtering & app detection
+│   │   ├── LinkRouter.swift          # Instant (0.001s) URL proxy & target routing
 │   │   ├── HotkeyManager.swift       # Carbon global shortcut (⌃⌥B) registration
-│   │   └── SystemHelper.swift        # Launch at Login, notifications, sounds & accessibility
+│   │   └── SystemHelper.swift        # Launch at Login, notifications, sounds & settings
 │   ├── UI/
 │   │   ├── MenuBarController.swift   # NSStatusItem, template icon, & dynamic NSMenu
 │   │   ├── OnboardingController.swift# Floating window manager for welcome card
 │   │   └── OnboardingView.swift      # Native SwiftUI onboarding wizard card
-│   ├── AppDelegate.swift             # App lifecycle, first-launch gating & hotkey setup
-│   └── main.swift                    # NSApplication activation policy (.accessory)
+│   ├── AppDelegate.swift             # App lifecycle, URL interception & hotkey setup
+│   └── main.swift                    # Single-instance locks (PID & flock) & .accessory policy
 ├── Resources/
-│   ├── Info.plist                    # LSUIElement = true (pure menu bar agent)
+│   ├── Info.plist                    # Document & URL scheme declarations (HTML, HTTP, HTTPS)
 │   ├── AppIcon.icns                  # Multi-resolution macOS icon bundle
 │   └── AppIcon.png                   # 1024x1024 Retina asset
 ├── Tests/
 │   ├── TestBrowserDetection.swift    # Discovery & default detection tests
 │   ├── TestBrowserCycle.swift        # Cycling math & wrap-around tests
 │   ├── TestHotkeyManager.swift       # Carbon event registration tests
-│   ├── TestOnboardingState.swift     # UserDefaults persistence tests
-│   └── TestSystemHelperAccessibility.swift # Accessibility permission API tests
+│   ├── TestLinkRouter.swift          # URL routing & target dispatch tests
+│   ├── TestSingleInstance.swift      # Dual-lock duplicate prevention tests
+│   └── TestOnboardingState.swift     # UserDefaults persistence tests
 ├── build.sh                          # Automated compilation and install script
 └── docs/
+    ├── SETUP_GUIDE.md                # Step-by-step user manual
     └── assets/                       # Screenshots and demo assets
 ```
 

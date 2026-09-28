@@ -34,6 +34,10 @@ public class SystemHelper: NSObject, UNUserNotificationCenterDelegate {
 
     // MARK: - System Settings Navigation
 
+    public var isDefaultBrowser: Bool {
+        return BrowserManager.shared.getCurrentDefaultBrowserBundleId() == "com.bsormagec.DefaultBrowserChanger"
+    }
+
     public func openDesktopAndDockSettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.Desktop-Settings.extension") {
             if NSWorkspace.shared.open(url) {
