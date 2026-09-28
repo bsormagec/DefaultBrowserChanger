@@ -38,10 +38,12 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 
 **DefaultBrowserChanger** lives quietly in your menu bar (tray) as an elegant Globe icon:
 - 🎯 **One-Click Switch:** Click the Globe, choose any installed browser, done.
+- ⌨️ **Global Shortcut (`⌃⌥B`):** Cycle through installed browsers instantly from your keyboard without reaching for the mouse.
 - 🎨 **Native Colorful Icons:** Real high-resolution app icons displayed beside each browser.
-- ⚡ **Seamless Auto-Confirmation:** Automatically handles macOS security prompts in the background for a frictionless experience.
+- ⚡ **Resilient Auto-Confirmation:** Automatically and silently confirms macOS prompts in 0.05s across all macOS languages.
+- 🧭 **Welcome Guide:** Modern single-card onboarding wizard on first launch, accessible anytime from the menu bar.
 - 🚀 **Launch at Login:** Built-in `SMAppService` toggle so it's always ready when you turn on your Mac.
-- 🪶 **Zero Bloat:** Pure native Swift with AppKit and LaunchServices. Consumes under 15MB RAM and 0% CPU.
+- 🪶 **Zero Bloat:** Pure native Swift with AppKit and SwiftUI. Consumes under 15MB RAM and 0% CPU.
 - 🔒 **100% Private & Offline:** No network access, no telemetry, no tracking.
 
 ---
@@ -96,8 +98,10 @@ open /Applications/DefaultBrowserChanger.app
 4. You will receive a subtle macOS notification and sound feedback confirming the change.
 
 ### Quick Actions Included:
+- **Cycle Shortcut (⌃⌥B):** Toggle the global shortcut on or off right from the menu.
 - **Launch at Login:** Automatically launches on system startup.
 - **Open in System Settings...:** Direct shortcut to Desktop & Dock preferences.
+- **Welcome Guide...:** Reopens the onboarding card anytime for permission status and guidance.
 - **Refresh Browsers:** Rescans your system for newly installed browsers.
 - **Quit:** Clean exit (`⌘Q`).
 
@@ -105,11 +109,12 @@ open /Applications/DefaultBrowserChanger.app
 
 ## 🔒 Permissions & Security
 
-macOS considers the default browser preference protected. `DefaultBrowserChanger` uses `LaunchServices` and background AppleScript via System Events to confirm the selection automatically.
+macOS considers the default browser preference protected. `DefaultBrowserChanger` uses `LaunchServices` and background Accessibility automation via System Events to confirm the selection automatically in 0.05s.
 
-- Upon the first switch, macOS may prompt: *"DefaultBrowserChanger would like to control System Events"*.
-- Click **Allow** to enable instant 1-click silent switching.
-- If permission is denied, macOS will simply display its standard one-click confirmation dialog on screen.
+- Upon first launch, the built-in **Welcome Guide** explains why this permission is needed.
+- Click **Grant Permission** to open macOS Accessibility settings (`Privacy & Security > Accessibility`).
+- Once granted, switching default browsers is completely silent and instantaneous.
+- If permission is not granted, macOS simply displays its standard confirmation dialog on screen for manual confirmation.
 
 ---
 
@@ -121,18 +126,25 @@ DefaultBrowserChanger/
 │   ├── Models/
 │   │   └── BrowserApp.swift          # Browser data model
 │   ├── Services/
-│   │   ├── BrowserManager.swift      # Discovery, filtering, & LaunchServices switcher
-│   │   └── SystemHelper.swift        # Launch at Login, notifications, & sound
+│   │   ├── BrowserManager.swift      # Discovery, filtering, cycling & LaunchServices switcher
+│   │   ├── HotkeyManager.swift       # Carbon global shortcut (⌃⌥B) registration
+│   │   └── SystemHelper.swift        # Launch at Login, notifications, sounds & accessibility
 │   ├── UI/
-│   │   └── MenuBarController.swift   # NSStatusItem, template icon, & dynamic NSMenu
-│   ├── AppDelegate.swift             # App lifecycle & notification delegate
+│   │   ├── MenuBarController.swift   # NSStatusItem, template icon, & dynamic NSMenu
+│   │   ├── OnboardingController.swift# Floating window manager for welcome card
+│   │   └── OnboardingView.swift      # Native SwiftUI onboarding wizard card
+│   ├── AppDelegate.swift             # App lifecycle, first-launch gating & hotkey setup
 │   └── main.swift                    # NSApplication activation policy (.accessory)
 ├── Resources/
 │   ├── Info.plist                    # LSUIElement = true (pure menu bar agent)
 │   ├── AppIcon.icns                  # Multi-resolution macOS icon bundle
 │   └── AppIcon.png                   # 1024x1024 Retina asset
 ├── Tests/
-│   └── TestBrowserDetection.swift    # Verification suite
+│   ├── TestBrowserDetection.swift    # Discovery & default detection tests
+│   ├── TestBrowserCycle.swift        # Cycling math & wrap-around tests
+│   ├── TestHotkeyManager.swift       # Carbon event registration tests
+│   ├── TestOnboardingState.swift     # UserDefaults persistence tests
+│   └── TestSystemHelperAccessibility.swift # Accessibility permission API tests
 ├── build.sh                          # Automated compilation and install script
 └── docs/
     └── assets/                       # Screenshots and demo assets
