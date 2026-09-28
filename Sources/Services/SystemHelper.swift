@@ -1,4 +1,5 @@
 import AppKit
+import ApplicationServices
 import ServiceManagement
 import UserNotifications
 
@@ -35,6 +36,31 @@ public class SystemHelper: NSObject, UNUserNotificationCenterDelegate {
 
     public func openDesktopAndDockSettings() {
         if let url = URL(string: "x-apple.systempreferences:com.apple.Desktop-Settings.extension") {
+            if NSWorkspace.shared.open(url) {
+                return
+            }
+        }
+        if let fallbackUrl = URL(string: "x-apple.systempreferences:") {
+            NSWorkspace.shared.open(fallbackUrl)
+        }
+    }
+
+    // MARK: - Accessibility Permissions
+
+    public var isAccessibilityGranted: Bool {
+        return AXIsProcessTrusted()
+    }
+
+    public func requestAccessibilityPermission() {
+        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
+        let trusted = AXIsProcessTrustedWithOptions(options)
+        if !trusted {
+            openAccessibilitySettings()
+        }
+    }
+
+    public func openAccessibilitySettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
             if NSWorkspace.shared.open(url) {
                 return
             }
