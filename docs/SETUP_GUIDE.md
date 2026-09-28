@@ -9,23 +9,30 @@ Welcome to **DefaultBrowserChanger**! This guide walks you through the 1-minute,
 To allow DefaultBrowserChanger to intercept and instantly route your web links to your preferred browser, macOS simply needs DefaultBrowserChanger designated as your system's default web browser.
 
 ### Step 1: Open System Settings
-- Press <kbd>⌘ Command</kbd> + <kbd>Space</kbd>, type **System Settings**, and press <kbd>Return</kbd>.
-- *(Alternatively, click the Apple menu  in the top-left corner and choose **System Settings...**).*
+- Press <kbd>⌘ Command</kbd> + <kbd>Space</kbd>, type **System Settings**, and press <kbd>Return</kbd> (or click  > **System Settings...**).
 
-### Step 2: Navigate to "Desktop & Dock"
-- In the left sidebar of System Settings, click **Desktop & Dock**.
-- *(Or type `Default web browser` directly into the top search bar).*
+<p align="center">
+  <img src="assets/step1_open_settings.png" width="600" alt="Step 1: Open macOS System Settings">
+</p>
 
-### Step 3: Select `DefaultBrowserChanger.app`
-- Scroll down to the **Default web browser** dropdown menu (located just below Widgets).
-- Click the dropdown and select **DefaultBrowserChanger.app**.
+### Step 2: Search "Default web browser"
+- In the search bar at the top-left of System Settings, type **`Default web browser`**.
+- Click the **Default web browser — Desktop & Dock** search result.
+
+<p align="center">
+  <img src="assets/step2_search_browser.png" width="600" alt="Step 2: Search Default web browser in System Settings">
+</p>
+
+### Step 3: Open the Dropdown & Choose `DefaultBrowserChanger.app`
+- In the **Default web browser** setting row, click the dropdown menu showing all installed browsers.
+- Select **`DefaultBrowserChanger.app`**.
 - If macOS displays a one-time confirmation sheet, click **Use "DefaultBrowserChanger"**.
 
 <p align="center">
-  <img src="assets/system_settings_browser.png" width="650" alt="Select DefaultBrowserChanger in macOS System Settings">
+  <img src="assets/step3_select_browser.png" width="600" alt="Step 3: Select DefaultBrowserChanger from the dropdown">
 </p>
 
-✅ **You're all set!** From this moment forward, you will never see another macOS default browser confirmation dialog.
+✅ **You're all set!** From this moment forward, you will never see another macOS default browser confirmation dialog. Switch browsers anytime from your menu bar or using <kbd>⌃</kbd>+<kbd>⌥</kbd>+<kbd>B</kbd>.
 
 ---
 
