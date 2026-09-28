@@ -32,7 +32,19 @@ public class LinkRouter: NSObject {
         SystemHelper.shared.playFeedbackSound()
     }
 
+    private var lastRoutedURL: String?
+    private var lastRoutedTime: Date?
+
     public func route(url: URL) {
+        let now = Date()
+        if let lastUrl = lastRoutedURL, lastUrl == url.absoluteString,
+           let lastTime = lastRoutedTime, now.timeIntervalSince(lastTime) < 0.5 {
+            NSLog("LinkRouter: Duplicate URL event ignored for %@", url.absoluteString)
+            return
+        }
+        lastRoutedURL = url.absoluteString
+        lastRoutedTime = now
+
         NSLog("LinkRouter: Routing URL: %@", url.absoluteString)
         let targetId = activeBrowserId
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
