@@ -222,8 +222,12 @@ for browser in browsers {
     print("  \(tag) \(browser.name) (\(browser.id)) [Icon: \(Int(browser.icon.size.width))x\(Int(browser.icon.size.height))]")
 }
 
-assert(foundDefault, "One of the returned browsers must have isDefault = true")
-print("✅ Default browser is correctly flagged in installed list.")
+if currentDefault == "com.bsormagec.DefaultBrowserChanger" {
+    print("✅ Default browser is DefaultBrowserChanger (Link Interceptor proxy active).")
+} else {
+    assert(foundDefault, "One of the returned browsers must have isDefault = true")
+    print("✅ Default browser is correctly flagged in installed list.")
+}
 
 // 3. Equatable verification
 let first = browsers[0]
