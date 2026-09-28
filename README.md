@@ -92,6 +92,13 @@ With **DefaultBrowserChanger**, press `⌃⌥B` or click the Globe, select the b
 3. Unzip and drag `DefaultBrowserChanger.app` into your `/Applications` folder.
 4. Open the app and follow the 1-minute setup above!
 
+> [!TIP]
+> **First-Launch Gatekeeper Notice (Unidentified Developer):**  
+> Because DefaultBrowserChanger is a free open-source project without a paid Apple Developer subscription ($99/yr), macOS Gatekeeper may show a notice on first launch:
+> - Simply **Right-Click (or Control-Click) the app icon → Open → Click Open**, OR
+> - Go to **System Settings → Privacy & Security** and click **Open Anyway**.  
+> macOS will remember this decision and never ask again!
+
 ### Option 2: Build & Install from Source
 Ensure you have Xcode Command Line Tools installed (`xcode-select --install`).
 

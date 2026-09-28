@@ -76,3 +76,11 @@ If DefaultBrowserChanger is your default browser and is not currently running, c
 
 ### Can I reopen this guide from the app?
 Yes! Click the Globe icon in the menu bar and select **Welcome Guide...** at any time.
+
+### What if macOS Gatekeeper shows a warning on first launch?
+Because this is an independent open-source project distributed outside the Mac App Store without a paid Apple Developer certificate ($99/yr), macOS Gatekeeper flags it on the first launch.
+To open it:
+1. **Right-Click (Control-Click)** `DefaultBrowserChanger.app` in `/Applications` → click **Open** → click **Open**.
+2. Or open **System Settings → Privacy & Security** and click **Open Anyway**.
+3. Or in Terminal: `xattr -cr /Applications/DefaultBrowserChanger.app`.
+macOS only asks once; subsequent launches open instantly.
