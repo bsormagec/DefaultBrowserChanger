@@ -130,12 +130,18 @@ public class BrowserManager {
         }
         isSwitching = true
 
+        // If accessibility is not granted, prompt the user so auto-confirmation can function
+        if !SystemHelper.shared.isAccessibilityGranted {
+            DispatchQueue.main.async {
+                SystemHelper.shared.requestAccessibilityPermission()
+            }
+        }
+
         NSLog("BrowserManager: Setting default browser to %@", bundleId)
-        let res1 = LSSetDefaultHandlerForURLScheme("http" as CFString, bundleId as CFString)
-        let res2 = LSSetDefaultHandlerForURLScheme("https" as CFString, bundleId as CFString)
-        let res3 = LSSetDefaultRoleHandlerForContentType("public.html" as CFString, .all, bundleId as CFString)
-        let res4 = LSSetDefaultRoleHandlerForContentType("public.xhtml" as CFString, .all, bundleId as CFString)
-        NSLog("BrowserManager: LS calls returned: %d, %d, %d, %d", res1, res2, res3, res4)
+        // Setting https and http is the canonical macOS mechanism (produces exactly 1 dialog instead of multiple)
+        let res = LSSetDefaultHandlerForURLScheme("https" as CFString, bundleId as CFString)
+        _ = LSSetDefaultHandlerForURLScheme("http" as CFString, bundleId as CFString)
+        NSLog("BrowserManager: LS call returned: %d", res)
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let scriptSource = """
@@ -146,8 +152,6 @@ public class BrowserManager {
                             repeat while (count of windows) > 0
                                 try
                                     click button 1 of window 1
-                                on error
-                                    exit repeat
                                 end try
                                 delay 0.05
                             end repeat
