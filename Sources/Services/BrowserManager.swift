@@ -122,22 +122,30 @@ public class BrowserManager {
     }
 
     public func setDefaultBrowser(bundleId: String, completion: @escaping (Bool) -> Void) {
-        LSSetDefaultHandlerForURLScheme("http" as CFString, bundleId as CFString)
-        LSSetDefaultHandlerForURLScheme("https" as CFString, bundleId as CFString)
-        LSSetDefaultRoleHandlerForContentType("public.html" as CFString, .all, bundleId as CFString)
-        LSSetDefaultRoleHandlerForContentType("public.xhtml" as CFString, .all, bundleId as CFString)
+        NSLog("BrowserManager: Setting default browser to %@", bundleId)
+        let res1 = LSSetDefaultHandlerForURLScheme("http" as CFString, bundleId as CFString)
+        let res2 = LSSetDefaultHandlerForURLScheme("https" as CFString, bundleId as CFString)
+        let res3 = LSSetDefaultRoleHandlerForContentType("public.html" as CFString, .all, bundleId as CFString)
+        let res4 = LSSetDefaultRoleHandlerForContentType("public.xhtml" as CFString, .all, bundleId as CFString)
+        NSLog("BrowserManager: LS calls returned: %d, %d, %d, %d", res1, res2, res3, res4)
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             let scriptSource = """
             tell application "System Events"
-                repeat 25 times
+                repeat 30 times
                     if exists (process "CoreServicesUIAgent") then
                         tell process "CoreServicesUIAgent"
                             if (count of windows) > 0 then
                                 repeat with w in windows
-                                    try
-                                        click (first button of w whose name starts with "Use")
-                                    end try
+                                    repeat with b in (buttons of w)
+                                        set bName to (name of b) as text
+                                        if bName starts with "Use" or bName contains "Kullan" or (bName does not start with "Keep" and bName does not start with "Vazgeç" and bName does not start with "Cancel" and bName does not start with "Sürdür") then
+                                            try
+                                                click b
+                                                exit repeat
+                                            end try
+                                        end if
+                                    end repeat
                                 end repeat
                                 exit repeat
                             end if
@@ -151,11 +159,15 @@ public class BrowserManager {
             if let script = NSAppleScript(source: scriptSource) {
                 var error: NSDictionary?
                 script.executeAndReturnError(&error)
+                if let error = error {
+                    NSLog("BrowserManager: AppleScript error: %@", error)
+                }
             }
 
-            Thread.sleep(forTimeInterval: 0.25)
+            Thread.sleep(forTimeInterval: 0.3)
 
             let isSuccess = (self?.getCurrentDefaultBrowserBundleId() == bundleId)
+            NSLog("BrowserManager: Verification success = %d", isSuccess ? 1 : 0)
             DispatchQueue.main.async {
                 completion(isSuccess)
             }

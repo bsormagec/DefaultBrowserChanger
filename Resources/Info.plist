@@ -22,5 +22,7 @@
 	<true/>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>DefaultBrowserChanger uses Apple Events to confirm your default browser selection automatically.</string>
 </dict>
 </plist>

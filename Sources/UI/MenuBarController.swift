@@ -13,19 +13,30 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
             if let image = NSImage(systemSymbolName: "globe", accessibilityDescription: "Default Browser Changer") {
-                image.isTemplate = true
-                button.image = image
+                let config = NSImage.SymbolConfiguration(pointSize: 15, weight: .regular)
+                let configuredImage = image.withSymbolConfiguration(config) ?? image
+                configuredImage.isTemplate = true
+                button.image = configuredImage
             }
         }
+        updateTooltip()
         menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
+    }
+
+    private func updateTooltip() {
+        let currentBundleId = BrowserManager.shared.getCurrentDefaultBrowserBundleId()
+        let browsers = BrowserManager.shared.fetchInstalledBrowsers()
+        let currentName = browsers.first(where: { $0.id == currentBundleId })?.name ?? "Web Browser"
+        statusItem.button?.toolTip = "Default Browser: \(currentName)"
     }
 
     // MARK: - NSMenuDelegate
 
     public func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        updateTooltip()
 
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
         let currentDefaultBundleId = BrowserManager.shared.getCurrentDefaultBrowserBundleId()
@@ -55,7 +66,7 @@ public class MenuBarController: NSObject, NSMenuDelegate {
                 let item = NSMenuItem(title: browser.name, action: #selector(browserSelected(_:)), keyEquivalent: "")
                 item.target = self
                 item.image = browser.icon
-                item.representedObject = browser
+                item.representedObject = browser.id
                 item.state = browser.isDefault ? .on : .off
                 menu.addItem(item)
             }
@@ -88,17 +99,26 @@ public class MenuBarController: NSObject, NSMenuDelegate {
     // MARK: - Actions
 
     @objc func browserSelected(_ sender: NSMenuItem) {
-        guard let browser = sender.representedObject as? BrowserApp else { return }
+        guard let bundleId = sender.representedObject as? String else {
+            NSLog("MenuBarController: Invalid representedObject on browser item")
+            return
+        }
 
-        if browser.isDefault {
+        let browserName = sender.title
+        NSLog("MenuBarController: Selected browser %@ (%@)", browserName, bundleId)
+
+        let currentDefault = BrowserManager.shared.getCurrentDefaultBrowserBundleId()
+        if bundleId == currentDefault {
             SystemHelper.shared.playFeedbackSound()
             return
         }
 
-        BrowserManager.shared.setDefaultBrowser(bundleId: browser.id) { _ in
+        BrowserManager.shared.setDefaultBrowser(bundleId: bundleId) { [weak self] success in
+            NSLog("MenuBarController: Set default browser result = %d", success ? 1 : 0)
+            self?.updateTooltip()
             SystemHelper.shared.postNotification(
                 title: "Default Browser Changed",
-                message: "\(browser.name) is now your default web browser."
+                message: "\(browserName) is now your default web browser."
             )
         }
     }
