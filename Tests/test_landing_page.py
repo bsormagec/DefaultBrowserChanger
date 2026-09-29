@@ -23,6 +23,16 @@ def test_landing_page():
     for href in ["#features", "#setup", "#faq"]:
         assert f'href="{href}"' in html, f"Missing nav link to: {href}"
 
+    # 3a. Mobile navigation and responsive layout hooks
+    assert '<details class="mobile-nav">' in html, "Missing native mobile navigation disclosure"
+    assert '<summary class="mobile-nav-toggle"' in html, "Mobile navigation toggle must be a summary element"
+    assert 'class="mobile-nav-links"' in html, "Missing mobile navigation link group"
+    assert "@media (max-width: 850px)" in html, "Missing tablet/mobile layout breakpoint"
+    assert "@media (max-width: 420px)" in html, "Missing narrow-phone layout breakpoint"
+    assert "section[id]" in html and "scroll-margin-top" in html, "In-page navigation must account for the sticky header"
+    assert "document.querySelector('.mobile-nav').open = false" in html, "Mobile navigation should close after selecting a link"
+    assert "<br> Speed of Thought." in html, "Hiding the desktop line break must preserve a space on mobile"
+
     # 4. Download Link & GitHub Link
     assert "https://github.com/bsormagec/DefaultBrowserChanger/releases/latest/download/DefaultBrowserChanger.zip" in html, "Missing latest release download URL"
     assert "https://github.com/bsormagec/DefaultBrowserChanger" in html, "Missing GitHub repository URL"

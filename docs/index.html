@@ -75,6 +75,9 @@
       margin: 0 auto;
       padding: 0 1.5rem;
     }
+    section[id] {
+      scroll-margin-top: 5rem;
+    }
 
     /* ===== NAVBAR ===== */
     .navbar {
@@ -135,6 +138,71 @@
     .btn-nav-download:hover {
       background: var(--accent-hover);
       transform: translateY(-1px);
+    }
+    .mobile-nav {
+      display: none;
+      position: relative;
+    }
+    .mobile-nav-toggle {
+      list-style: none;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .mobile-nav-toggle::-webkit-details-marker {
+      display: none;
+    }
+    .mobile-nav-toggle:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .mobile-nav-panel {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 110;
+      width: min(16rem, calc(100vw - 2rem));
+      padding: 8px;
+      border: 1px solid var(--border-hover);
+      border-radius: 14px;
+      background: rgba(17, 22, 33, 0.98);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .mobile-nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .mobile-nav-links a {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-radius: 8px;
+      color: #d1d1d6;
+      font-size: 0.9rem;
+    }
+    .mobile-nav-links a:hover,
+    .mobile-nav-links a:focus-visible {
+      background: rgba(255, 255, 255, 0.07);
+      color: #fff;
+    }
+    .mobile-nav-links .mobile-nav-download {
+      margin-top: 4px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
     }
 
     /* ===== HERO ===== */
@@ -298,6 +366,7 @@
     }
     .dropdown-image-wrap {
       flex-shrink: 0;
+      width: min(240px, 100%);
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
       border-radius: 10px;
       overflow: hidden;
@@ -305,7 +374,7 @@
     }
     .dropdown-image-wrap img {
       display: block;
-      width: 240px;
+      width: 100%;
       height: auto;
     }
     .showcase-text {
@@ -375,11 +444,11 @@
     /* ===== FEATURES GRID ===== */
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 1.5rem;
     }
     @media (max-width: 900px) {
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 600px) {
       .features-grid { grid-template-columns: 1fr; }
@@ -426,12 +495,13 @@
     /* ===== SETUP GUIDE ===== */
     .setup-steps-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 1.5rem;
       margin-bottom: 2rem;
     }
     @media (max-width: 850px) {
-      .setup-steps-row { grid-template-columns: 1fr; }
+      .setup-steps-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .step-card:last-child { grid-column: 1 / -1; }
     }
     .step-card {
       background: var(--bg-card);
@@ -638,6 +708,194 @@
     .footer-links a:hover {
       color: var(--text-muted);
     }
+
+    @media (max-width: 850px) {
+      .nav-links,
+      .nav-actions {
+        display: none;
+      }
+      .mobile-nav {
+        display: block;
+      }
+      .hero {
+        padding-top: 4rem;
+      }
+      .showcase-content {
+        flex-direction: column;
+        padding: 1.5rem;
+        text-align: center;
+      }
+      .showcase-features-list li {
+        text-align: left;
+        align-items: flex-start;
+      }
+      .setup-steps-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .step-card:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding-right: 1rem;
+        padding-left: 1rem;
+      }
+      .hero {
+        padding: 3.25rem 0 2.5rem;
+      }
+      .hero-title {
+        font-size: clamp(2rem, 9vw, 2.6rem);
+      }
+      .hero-title br {
+        display: none;
+      }
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      .hero-cta-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+      }
+      .hero-cta-group .btn-primary,
+      .hero-cta-group .btn-secondary {
+        justify-content: center;
+        width: 100%;
+      }
+      .mac-menubar {
+        padding: 8px 10px;
+        font-size: 0.72rem;
+      }
+      .menubar-left {
+        gap: 8px;
+      }
+      .menubar-left span:not(.app-name):not(.apple-logo),
+      .menubar-right > span:not(.hotkey-badge) {
+        display: none;
+      }
+      .menubar-right {
+        gap: 8px;
+      }
+      .showcase-content {
+        padding: 1rem;
+        gap: 1.25rem;
+      }
+      .showcase-text h3 {
+        font-size: 1.2rem;
+      }
+      .showcase-features-list {
+        font-size: 0.82rem;
+      }
+      .showcase-features-list li {
+        display: block;
+        position: relative;
+        padding-left: 1.25rem;
+      }
+      .showcase-features-list .bullet-check {
+        position: absolute;
+        left: 0;
+      }
+      .section {
+        padding: 3.5rem 0;
+      }
+      .section-header {
+        margin-bottom: 2rem;
+      }
+      .features-grid,
+      .setup-steps-row {
+        grid-template-columns: 1fr;
+      }
+      .step-card:last-child {
+        grid-column: auto;
+      }
+      .feat-card {
+        padding: 1.4rem;
+      }
+      .gatekeeper-box {
+        gap: 0.75rem;
+        padding: 1rem;
+      }
+      .terminal-command-widget {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 10px;
+        font-size: 0.75rem;
+      }
+      .terminal-command-widget span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .btn-copy-command {
+        min-height: 40px;
+      }
+      .faq-question {
+        gap: 0.75rem;
+        padding: 1rem;
+        font-size: 0.92rem;
+      }
+      .faq-answer {
+        padding-right: 1rem;
+        padding-left: 1rem;
+      }
+      .cta-banner {
+        margin: 1rem 0;
+        padding: 2.5rem 1rem;
+      }
+      .cta-banner h3 {
+        font-size: clamp(1.55rem, 7vw, 2rem);
+      }
+      .cta-banner .btn-primary {
+        justify-content: center;
+        width: 100%;
+      }
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .footer-links {
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .brand {
+        gap: 7px;
+        font-size: 0.88rem;
+      }
+      .hero-cta-group .btn-primary span:nth-child(2) {
+        display: none;
+      }
+      .brand-icon {
+        width: 28px;
+        height: 28px;
+      }
+      .mobile-nav-toggle {
+        gap: 5px;
+        padding: 0 8px;
+        font-size: 0.8rem;
+      }
+      .badge-pill {
+        padding: 5px 10px;
+        font-size: 0.7rem;
+      }
+      .showcase-content {
+        padding: 0.85rem;
+      }
+      .dropdown-image-wrap {
+        width: min(220px, 100%);
+      }
+      .gatekeeper-box {
+        align-items: flex-start;
+      }
+      .gk-icon-wrap {
+        font-size: 1.25rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -658,6 +916,18 @@
       <div class="nav-actions">
         <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases/latest/download/DefaultBrowserChanger.zip" class="btn-nav-download">Download .zip</a>
       </div>
+      <details class="mobile-nav">
+        <summary class="mobile-nav-toggle"><span aria-hidden="true">☰</span><span>Menu</span></summary>
+        <div class="mobile-nav-panel">
+          <div class="mobile-nav-links">
+            <a href="#features">Features</a>
+            <a href="#setup">Setup Guide</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://github.com/bsormagec/DefaultBrowserChanger" target="_blank" rel="noopener">GitHub ↗</a>
+            <a href="https://github.com/bsormagec/DefaultBrowserChanger/releases/latest/download/DefaultBrowserChanger.zip" class="mobile-nav-download">Download .zip</a>
+          </div>
+        </div>
+      </details>
     </div>
   </nav>
 
@@ -669,7 +939,7 @@
       </a>
 
       <h1 class="hero-title">
-        Switch Browsers at the<br>Speed of Thought.
+        Switch Browsers at the<br> Speed of Thought.
       </h1>
 
       <p class="hero-subtitle">
@@ -949,6 +1219,10 @@
         }, 2000);
       });
     }
+
+    document.querySelector('.mobile-nav-links').addEventListener('click', () => {
+      document.querySelector('.mobile-nav').open = false;
+    });
   </script>
 </body>
 </html>
