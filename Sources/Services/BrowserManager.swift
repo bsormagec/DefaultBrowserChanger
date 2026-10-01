@@ -183,10 +183,54 @@ public class BrowserManager {
         }
     }
 
+    // MARK: - Cycle Enabled Browsers Persistence
+
+    private let cycleEnabledKey = "cycleEnabledBrowserBundleIds"
+
+    public func getCycleEnabledBrowserIds() -> Set<String> {
+        if let saved = UserDefaults.standard.stringArray(forKey: cycleEnabledKey) {
+            return Set(saved)
+        }
+        // By default, all installed browsers are enabled
+        let allIds = fetchInstalledBrowsers().map { $0.id }
+        return Set(allIds)
+    }
+
+    public func setCycleEnabledBrowserIds(_ ids: Set<String>) {
+        if ids.isEmpty {
+            UserDefaults.standard.removeObject(forKey: cycleEnabledKey)
+        } else {
+            UserDefaults.standard.set(Array(ids), forKey: cycleEnabledKey)
+        }
+    }
+
+    public func isBrowserCycleEnabled(bundleId: String) -> Bool {
+        return getCycleEnabledBrowserIds().contains(bundleId)
+    }
+
+    public func setBrowserCycleEnabled(bundleId: String, isEnabled: Bool) {
+        var current = getCycleEnabledBrowserIds()
+        if isEnabled {
+            current.insert(bundleId)
+        } else {
+            if current.count > 1 {
+                current.remove(bundleId)
+            }
+        }
+        setCycleEnabledBrowserIds(current)
+    }
+
+    public func fetchCycleBrowsers() -> [BrowserApp] {
+        let all = fetchInstalledBrowsers()
+        let enabledIds = getCycleEnabledBrowserIds()
+        let filtered = all.filter { enabledIds.contains($0.id) }
+        return filtered.isEmpty ? all : filtered
+    }
+
     // MARK: - Browser Cycling
 
     public func cycleNextDefaultBrowser(completion: ((BrowserApp?) -> Void)? = nil) {
-        let browsers = fetchInstalledBrowsers()
+        let browsers = fetchCycleBrowsers()
         guard !browsers.isEmpty else {
             completion?(nil)
             return

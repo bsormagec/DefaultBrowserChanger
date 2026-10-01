@@ -44,11 +44,24 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
 - Click any browser. It instantly becomes your active target browser with sound feedback.
 
 ### 2. Global Hotkey (`Control + Option + B` / `⌃⌥B`)
-- Press <kbd>⌃ Control</kbd> + <kbd>⌥ Option</kbd> + <kbd>B</kbd> anywhere on your Mac.
+- Press <kbd>⌃ Control</kbd> + <kbd>⌥ Option</kbd> + <kbd>B</kbd> (or your custom shortcut) anywhere on your Mac.
 - DefaultBrowserChanger will instantly cycle to your next installed browser with an audio click.
-- No need to take your hands off the keyboard or open the menu bar!
+- An on-screen floating HUD pill will appear at the top-center of your screen showing the active browser icon and name!
 
-### 3. Launch at Login
+### 3. Settings Window & Switch List Selection (<kbd>⌘</kbd> + <kbd>,</kbd>)
+- Click the Globe menu and choose **Settings...** (or press <kbd>⌘</kbd>+<kbd>,</kbd>).
+- **Installed Browsers List:** Use checkboxes to pick exactly which browsers participate in keyboard cycling.
+- **Select All:** Quickly enable all detected browsers with one click.
+- **Safety Lock:** At least one browser is always kept active to prevent empty cycle states.
+
+### 4. Customizing Your Global Shortcut
+- In the **Settings** window under **General**, find **Cycle Shortcut**.
+- Click the shortcut badge to enter recording mode (*"Press keys..."*).
+- Press any combination on your keyboard (e.g. <kbd>⌥ Option</kbd>+<kbd>Space</kbd> or <kbd>⌘ Command</kbd>+<kbd>⇧ Shift</kbd>+<kbd>B</kbd>).
+- The new shortcut is immediately active and registered system-wide.
+- Press <kbd>Esc</kbd> anytime to cancel, or click the <kbd>↺</kbd> button to restore the default <kbd>⌃</kbd><kbd>⌥</kbd><kbd>B</kbd>.
+
+### 5. Launch at Login
 - Open the Globe menu and ensure **Launch at Login** is checked.
 - DefaultBrowserChanger will silently start in your menu bar when you boot your Mac, consuming under 15MB RAM and 0% CPU.
 

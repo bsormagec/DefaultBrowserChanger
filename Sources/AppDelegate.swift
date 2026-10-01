@@ -25,6 +25,12 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        if CommandLine.arguments.contains("--settings") {
+            DispatchQueue.main.async {
+                SettingsController.shared.showWindow()
+            }
+        }
+
         NSLog("DefaultBrowserChanger: started successfully with menu bar item")
     }
 

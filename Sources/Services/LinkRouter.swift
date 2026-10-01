@@ -69,7 +69,7 @@ public class LinkRouter: NSObject {
     }
 
     public func cycleNextBrowser(completion: ((BrowserApp?) -> Void)? = nil) {
-        let browsers = BrowserManager.shared.fetchInstalledBrowsers()
+        let browsers = BrowserManager.shared.fetchCycleBrowsers()
         guard !browsers.isEmpty else {
             completion?(nil)
             return

@@ -78,19 +78,24 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         menu.addItem(NSMenuItem.separator())
 
         // Quick Actions & Settings
+        let settingsItem = NSMenuItem(title: "Settings...", action: #selector(openSettings(_:)), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
         let launchItem = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin(_:)), keyEquivalent: "")
         launchItem.target = self
         launchItem.state = SystemHelper.shared.isLaunchAtLoginEnabled ? .on : .off
         menu.addItem(launchItem)
 
-        let hotkeyItem = NSMenuItem(title: "Cycle Shortcut (⌃⌥B)", action: #selector(toggleHotkeyEnabled(_:)), keyEquivalent: "")
+        let shortcutTitle = "Cycle Shortcut (\(HotkeyManager.shared.shortcutDisplayString))"
+        let hotkeyItem = NSMenuItem(title: shortcutTitle, action: #selector(toggleHotkeyEnabled(_:)), keyEquivalent: "")
         hotkeyItem.target = self
         hotkeyItem.state = HotkeyManager.shared.isHotkeyEnabled ? .on : .off
         menu.addItem(hotkeyItem)
 
-        let settingsItem = NSMenuItem(title: "Open in System Settings...", action: #selector(openSystemSettings(_:)), keyEquivalent: "")
-        settingsItem.target = self
-        menu.addItem(settingsItem)
+        let systemSettingsItem = NSMenuItem(title: "Open in System Settings...", action: #selector(openSystemSettings(_:)), keyEquivalent: "")
+        systemSettingsItem.target = self
+        menu.addItem(systemSettingsItem)
 
         let welcomeItem = NSMenuItem(title: "Welcome Guide...", action: #selector(openWelcomeGuide(_:)), keyEquivalent: "")
         welcomeItem.target = self
@@ -109,6 +114,10 @@ public class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     // MARK: - Actions
+
+    @objc func openSettings(_ sender: NSMenuItem) {
+        SettingsController.shared.showWindow()
+    }
 
     @objc func browserSelected(_ sender: NSMenuItem) {
         guard let bundleId = sender.representedObject as? String else {

@@ -18,4 +18,11 @@ assert(getNextBrowser(currentId: "com.brave.Browser", installed: bundleIds) == "
 assert(getNextBrowser(currentId: "unknown.browser", installed: bundleIds) == "com.apple.Safari")
 assert(getNextBrowser(currentId: nil, installed: bundleIds) == "com.apple.Safari")
 
+// Verification with enabled subset (filtering)
+let enabledSubset = ["com.apple.Safari", "com.brave.Browser"]
+assert(getNextBrowser(currentId: "com.apple.Safari", installed: enabledSubset) == "com.brave.Browser")
+assert(getNextBrowser(currentId: "com.brave.Browser", installed: enabledSubset) == "com.apple.Safari")
+// If currently active was Chrome (not in enabled subset), fallback to first enabled
+assert(getNextBrowser(currentId: "com.google.Chrome", installed: enabledSubset) == "com.apple.Safari")
+
 print("✅ TestBrowserCycle passed!")
