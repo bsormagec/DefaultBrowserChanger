@@ -11,6 +11,7 @@ public struct SettingsView: View {
     @State private var showSingleBrowserAlert: Bool = false
     @State private var shortcutDisplayString: String = "⌃⌥B"
     @State private var isRecordingShortcut: Bool = false
+    @State private var rules: [DomainRule] = []
 
     public var onDismiss: () -> Void
 
@@ -76,7 +77,7 @@ public struct SettingsView: View {
                     }
                     .padding(6)
                 }
-                .frame(height: 210)
+                .frame(height: 170)
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(8)
                 .overlay(
@@ -100,6 +101,69 @@ public struct SettingsView: View {
                             .foregroundColor(.orange)
                     }
                 }
+            }
+
+            Divider()
+
+            // Link Rules
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Link Rules")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.secondary)
+                        Text("Matching links open in the chosen browser")
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Button(action: addRule) {
+                        Label("Add Rule", systemImage: "plus")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundColor(.accentColor)
+                }
+
+                ScrollView {
+                    VStack(spacing: 4) {
+                        if rules.isEmpty {
+                            Text("No rules — all links go to the active browser")
+                                .font(.system(size: 12))
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 12)
+                        }
+                        ForEach($rules) { $rule in
+                            HStack(spacing: 8) {
+                                TextField("example.com", text: $rule.pattern)
+                                    .textFieldStyle(.roundedBorder)
+                                    .font(.system(size: 12))
+                                Picker("", selection: $rule.browserId) {
+                                    ForEach(installedBrowsers) { browser in
+                                        Text(browser.name).tag(browser.id)
+                                    }
+                                }
+                                .labelsHidden()
+                                .frame(width: 140)
+                                Button(action: { rules.removeAll { $0.id == rule.id } }) {
+                                    Image(systemName: "minus.circle")
+                                        .foregroundColor(.secondary)
+                                }
+                                .buttonStyle(.borderless)
+                                .help("Remove rule")
+                            }
+                        }
+                    }
+                    .padding(6)
+                }
+                .frame(height: 110)
+                .background(Color(NSColor.controlBackgroundColor))
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color(NSColor.separatorColor), lineWidth: 0.8)
+                )
+                .onChange(of: rules) { DomainRule.save($0) }
             }
 
             Divider()
@@ -197,7 +261,7 @@ public struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 480, height: 540)
+        .frame(width: 480, height: 680)
         .onAppear {
             loadState()
         }
@@ -274,6 +338,11 @@ public struct SettingsView: View {
         isLaunchAtLogin = SystemHelper.shared.isLaunchAtLoginEnabled
         isHotkeyEnabled = HotkeyManager.shared.isHotkeyEnabled
         shortcutDisplayString = HotkeyManager.shared.shortcutDisplayString
+        rules = DomainRule.load()
+    }
+
+    private func addRule() {
+        rules.append(DomainRule(pattern: "", browserId: activeBrowserId))
     }
 
     private func toggleBrowser(bundleId: String, isEnabled: Bool) {

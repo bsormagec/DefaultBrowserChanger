@@ -31,3 +31,4 @@ jobs:
       - name: Run Tests
         run: |
           swift Tests/TestBrowserDetection.swift
+          cat Sources/Models/DomainRule.swift Tests/TestDomainRules.swift | swift -

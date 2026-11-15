@@ -46,10 +46,13 @@ public class LinkRouter: NSObject {
         lastRoutedTime = now
 
         NSLog("LinkRouter: Routing URL: %@", url.absoluteString)
-        let targetId = activeBrowserId
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
+        // Domain rule wins if its browser is still installed; otherwise fall back to the active browser.
+        let ruleTarget = DomainRule.browserId(for: url, in: DomainRule.load())
+            .flatMap { id in browsers.first(where: { $0.id == id }) }
+        let activeId = activeBrowserId
 
-        guard let targetBrowser = browsers.first(where: { $0.id == targetId }) ?? browsers.first else {
+        guard let targetBrowser = ruleTarget ?? browsers.first(where: { $0.id == activeId }) ?? browsers.first else {
             NSLog("LinkRouter: No target browser found, opening with default workspace")
             NSWorkspace.shared.open(url)
             return
