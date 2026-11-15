@@ -57,6 +57,7 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
   - `github.com` matches the domain and all its subdomains (`*.github.com` works too).
   - `github.com/work-org` matches only links under that path.
   - Rules are checked top to bottom; the first match wins.
+- **One-off picker:** Hold <kbd>⌥ Option</kbd> while clicking a link in any app. A browser menu appears at the pointer; pick one to open just that link there, or press <kbd>Esc</kbd> to cancel.
 
 ### 4. Customizing Your Global Shortcut
 - In the **Settings** window under **General**, find **Cycle Shortcut**.

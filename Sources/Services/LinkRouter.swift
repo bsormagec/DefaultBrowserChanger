@@ -58,17 +58,72 @@ public class LinkRouter: NSObject {
             return
         }
 
+        // Holding ⌥ while clicking a link: pick a browser for this one link (overrides rules).
+        // Live WindowServer state: NSEvent.modifierFlags can be stale right after launch.
+        if CGEventSource.flagsState(.combinedSessionState).contains(.maskAlternate) {
+            showPicker(for: url, browsers: browsers, suggested: targetBrowser)
+            return
+        }
+
+        open(url, in: targetBrowser)
+    }
+
+    private func open(_ url: URL, in browser: BrowserApp) {
         let config = NSWorkspace.OpenConfiguration()
         config.activates = true
 
-        NSWorkspace.shared.open([url], withApplicationAt: targetBrowser.bundleURL, configuration: config) { _, error in
+        NSWorkspace.shared.open([url], withApplicationAt: browser.bundleURL, configuration: config) { _, error in
             if let error = error {
-                NSLog("LinkRouter: Failed to open URL in %@: %@", targetBrowser.name, error.localizedDescription)
+                NSLog("LinkRouter: Failed to open URL in %@: %@", browser.name, error.localizedDescription)
                 NSWorkspace.shared.open(url)
             } else {
-                NSLog("LinkRouter: Successfully opened URL in %@", targetBrowser.name)
+                NSLog("LinkRouter: Successfully opened URL in %@", browser.name)
             }
         }
+    }
+
+    private var pickedBrowserId: String?
+
+    private func showPicker(for url: URL, browsers: [BrowserApp], suggested: BrowserApp) {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        let header = NSMenuItem(title: "Open \(url.host ?? url.absoluteString) in…", action: nil, keyEquivalent: "")
+        header.isEnabled = false
+        menu.addItem(header)
+        menu.addItem(.separator())
+
+        var suggestedItem: NSMenuItem?
+        for browser in browsers {
+            let item = NSMenuItem(title: browser.name, action: #selector(pickerItemSelected(_:)), keyEquivalent: "")
+            item.target = self
+            item.image = browser.icon
+            // macOS 27+ hides menu item images unless asked (same approach as MenuBarController).
+            if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
+                item.setValue(1, forKey: "preferredImageVisibility")
+            }
+            item.representedObject = browser.id
+            if browser.id == suggested.id {
+                item.state = .on
+                suggestedItem = item
+            }
+            menu.addItem(item)
+        }
+
+        pickedBrowserId = nil
+        NSApp.activate(ignoringOtherApps: true)
+        // popUp blocks until the menu closes; the selected item's action fires before it returns.
+        menu.popUp(positioning: suggestedItem, at: NSEvent.mouseLocation, in: nil)
+
+        if let browser = browsers.first(where: { $0.id == pickedBrowserId }) {
+            open(url, in: browser)
+        } else {
+            NSLog("LinkRouter: Picker dismissed, link not opened")
+            NSApp.hide(nil) // hand focus back to the app the link came from
+        }
+    }
+
+    @objc private func pickerItemSelected(_ sender: NSMenuItem) {
+        pickedBrowserId = sender.representedObject as? String
     }
 
     public func cycleNextBrowser(completion: ((BrowserApp?) -> Void)? = nil) {
