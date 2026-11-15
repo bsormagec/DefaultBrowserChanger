@@ -42,6 +42,7 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 - ☑️ **Custom Browser Switch List:** Checkbox list allowing you to choose exactly which browsers participate in keyboard cycling.
 - 🧩 **Link Rules:** Always open specific sites in a specific browser — `github.com/work-org` → Chrome, `*.atlassian.net` → Arc — no matter which browser is active.
 - 👤 **Browser Profiles:** Chrome, Brave, Edge, Vivaldi and other Chromium browsers show each profile as its own entry ("Google Chrome — Work"), so links, rules and shortcuts can target a specific profile.
+- 🧹 **Clean Links:** Strips tracking parameters (`utm_*`, `fbclid`, `gclid`…) and unwraps Outlook SafeLinks, Google, Facebook and Slack redirect links before opening them.
 - ⌥ **One-Off Browser Picker:** Hold <kbd>⌥ Option</kbd> while clicking a link to pick which browser opens just that link.
 - ⌨️ **Customizable Global Shortcut:** Interactive recorder lets you bind the cycle shortcut to any key combination you prefer (`⌃⌥B`, `⌥Space`, `⌘⇧B`, etc.).
 - 🔔 **On-Screen Floating HUD:** Instant floating pill at the top of your screen showing the active browser's real icon and name when switching.

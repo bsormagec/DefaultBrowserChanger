@@ -5,6 +5,20 @@ All notable changes to DefaultBrowserChanger will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-11-15
+
+### Added
+- **Clean Links (`LinkCleaner`):** On by default; toggle under **Settings → General**.
+  - Removes tracking parameters such as `utm_*`, `fbclid`, `gclid`, `msclkid`, `mc_eid` and `_hsenc`. Links without tracking keep their exact original form.
+  - Unwraps redirect links from Outlook SafeLinks, Google (`/url`), Facebook and Messenger (`l.php`), Instagram, Slack (`slack-redir.net`) and YouTube (`/redirect`), including nested ones. Only `http`/`https` destinations are unwrapped.
+  - Cleaning runs before Link Rules and the ⌥ picker, so rules match the real destination instead of the redirect host.
+- `Tests/TestLinkCleaner.swift`, run in CI and release workflows.
+
+### Changed
+- Settings window is slightly taller to fit the new toggle.
+
+---
+
 ## [1.5.0] - 2026-11-14
 
 ### Added

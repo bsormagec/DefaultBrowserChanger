@@ -63,6 +63,7 @@ jobs:
           swift Tests/TestSystemHelperAccessibility.swift
           cat Sources/Models/DomainRule.swift Tests/TestDomainRules.swift | swift -
           cat Sources/Models/ChromiumProfiles.swift Tests/TestChromiumProfiles.swift | swift -
+          cat Sources/Models/LinkCleaner.swift Tests/TestLinkCleaner.swift | swift -
 
       - name: Package Release Archive
         run: |

@@ -45,6 +45,8 @@ public class LinkRouter: NSObject {
         lastRoutedURL = url.absoluteString
         lastRoutedTime = now
 
+        // Clean first so rules and the picker see the real destination, not a redirect wrapper.
+        let url = LinkCleaner.isEnabled ? LinkCleaner.clean(url) : url
         NSLog("LinkRouter: Routing URL: %@", url.absoluteString)
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
         // Domain rule wins if its browser is still installed; otherwise fall back to the active browser.

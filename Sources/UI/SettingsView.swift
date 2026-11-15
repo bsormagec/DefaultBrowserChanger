@@ -12,6 +12,7 @@ public struct SettingsView: View {
     @State private var shortcutDisplayString: String = "⌃⌥B"
     @State private var isRecordingShortcut: Bool = false
     @State private var rules: [DomainRule] = []
+    @State private var isCleanLinks: Bool = true
 
     public var onDismiss: () -> Void
 
@@ -192,6 +193,21 @@ public struct SettingsView: View {
                         }
                 }
 
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Clean Links")
+                            .font(.system(size: 13))
+                        Text("Strip tracking parameters and unwrap redirect links")
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: $isCleanLinks)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .onChange(of: isCleanLinks) { LinkCleaner.isEnabled = $0 }
+                }
+
                 HStack(alignment: .center) {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Cycle Shortcut")
@@ -262,7 +278,7 @@ public struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 480, height: 680)
+        .frame(width: 480, height: 730)
         .onAppear {
             loadState()
         }
@@ -340,6 +356,7 @@ public struct SettingsView: View {
         isHotkeyEnabled = HotkeyManager.shared.isHotkeyEnabled
         shortcutDisplayString = HotkeyManager.shared.shortcutDisplayString
         rules = DomainRule.load()
+        isCleanLinks = LinkCleaner.isEnabled
     }
 
     private func addRule() {

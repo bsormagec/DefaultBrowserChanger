@@ -58,6 +58,7 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
   - `github.com/work-org` matches only links under that path.
   - Rules are checked top to bottom; the first match wins.
 - **Profiles:** If Chrome, Brave, Edge, Vivaldi or another Chromium browser has two or more profiles, each profile appears as its own entry (for example *Google Chrome — Work*). Pick it anywhere you pick a browser: the menu, the cycle list, a Link Rule or the ⌥ picker. The plain *Google Chrome* entry opens whichever profile you used last.
+- **Clean Links** (under **General**, on by default): removes tracking parameters like `utm_source` and `fbclid`, and turns Outlook SafeLinks, Google, Facebook and Slack redirect links back into the real address. Link Rules then match that real address.
 - **One-off picker:** Hold <kbd>⌥ Option</kbd> while clicking a link in any app. A browser menu appears at the pointer; pick one to open just that link there, or press <kbd>Esc</kbd> to cancel.
 
 ### 4. Customizing Your Global Shortcut
