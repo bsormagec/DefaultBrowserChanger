@@ -5,6 +5,21 @@ All notable changes to DefaultBrowserChanger will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-11-14
+
+### Added
+- **Chromium Profile Support (`ChromiumProfiles`):**
+  - Chrome (stable, Beta, Dev, Canary), Brave, Edge, Vivaldi, Chromium and Comet browsers with two or more profiles get one extra entry per profile, e.g. "Google Chrome — Work".
+  - Profile entries work everywhere a browser does: the menu bar list, the cycle shortcut, Link Rules, and the ⌥ picker.
+  - Links open in the chosen profile via `--profile-directory`, even when the browser is already running.
+  - The plain browser entry stays and still opens the browser's last-used profile, so existing settings keep working.
+- `Tests/TestChromiumProfiles.swift` covering profile parsing and ordering, run in CI and release workflows.
+
+### Fixed
+- The empty Link Rules list in Settings now spans the full width.
+
+---
+
 ## [1.4.0] - 2026-11-14
 
 ### Added

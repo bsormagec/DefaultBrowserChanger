@@ -72,13 +72,23 @@ public class LinkRouter: NSObject {
         let config = NSWorkspace.OpenConfiguration()
         config.activates = true
 
-        NSWorkspace.shared.open([url], withApplicationAt: browser.bundleURL, configuration: config) { _, error in
+        let completion: (NSRunningApplication?, Error?) -> Void = { _, error in
             if let error = error {
                 NSLog("LinkRouter: Failed to open URL in %@: %@", browser.name, error.localizedDescription)
                 NSWorkspace.shared.open(url)
             } else {
                 NSLog("LinkRouter: Successfully opened URL in %@", browser.name)
             }
+        }
+
+        if let profile = browser.profileDirectory {
+            // Same as `open -na <App> --args --profile-directory=…`: a running Chromium hands
+            // the second launch's arguments to its existing process, which opens the profile.
+            config.createsNewApplicationInstance = true
+            config.arguments = ["--profile-directory=\(profile)", url.absoluteString]
+            NSWorkspace.shared.openApplication(at: browser.bundleURL, configuration: config, completionHandler: completion)
+        } else {
+            NSWorkspace.shared.open([url], withApplicationAt: browser.bundleURL, configuration: config, completionHandler: completion)
         }
     }
 

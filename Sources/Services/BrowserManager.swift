@@ -119,7 +119,18 @@ public class BrowserManager {
             return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
         }
 
-        return browsers
+        // Chromium browsers with 2+ profiles also get one entry per profile, right after the browser itself.
+        return browsers.flatMap { browser in
+            [browser] + ChromiumProfiles.profiles(forBundleId: browser.id).map { profile in
+                BrowserApp(
+                    id: "\(browser.id)#\(profile.directory)",
+                    name: "\(browser.name) — \(profile.name)",
+                    bundleURL: browser.bundleURL,
+                    icon: browser.icon,
+                    profileDirectory: profile.directory
+                )
+            }
+        }
     }
 
     private var isSwitching = false

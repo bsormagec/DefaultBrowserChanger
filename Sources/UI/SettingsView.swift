@@ -154,6 +154,7 @@ public struct SettingsView: View {
                             }
                         }
                     }
+                    .frame(maxWidth: .infinity)
                     .padding(6)
                 }
                 .frame(height: 110)
@@ -296,7 +297,7 @@ public struct SettingsView: View {
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(isEnabled ? .primary : .secondary)
 
-                    Text(browser.id)
+                    Text(browser.id.replacingOccurrences(of: "#", with: " · "))
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
                         .lineLimit(1)

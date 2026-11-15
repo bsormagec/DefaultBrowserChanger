@@ -62,6 +62,7 @@ jobs:
           swift Tests/TestSingleInstance.swift
           swift Tests/TestSystemHelperAccessibility.swift
           cat Sources/Models/DomainRule.swift Tests/TestDomainRules.swift | swift -
+          cat Sources/Models/ChromiumProfiles.swift Tests/TestChromiumProfiles.swift | swift -
 
       - name: Package Release Archive
         run: |

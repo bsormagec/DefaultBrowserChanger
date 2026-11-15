@@ -32,3 +32,4 @@ jobs:
         run: |
           swift Tests/TestBrowserDetection.swift
           cat Sources/Models/DomainRule.swift Tests/TestDomainRules.swift | swift -
+          cat Sources/Models/ChromiumProfiles.swift Tests/TestChromiumProfiles.swift | swift -
