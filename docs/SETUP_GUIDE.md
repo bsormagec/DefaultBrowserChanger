@@ -53,6 +53,10 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
 - **Installed Browsers List:** Use checkboxes to pick exactly which browsers participate in keyboard cycling.
 - **Select All:** Quickly enable all detected browsers with one click.
 - **Safety Lock:** At least one browser is always kept active to prevent empty cycle states.
+- **Link Rules:** Click **Add Rule**, type a pattern, and pick a browser. Matching links always open there, whatever browser is active:
+  - `github.com` matches the domain and all its subdomains (`*.github.com` works too).
+  - `github.com/work-org` matches only links under that path.
+  - Rules are checked top to bottom; the first match wins.
 
 ### 4. Customizing Your Global Shortcut
 - In the **Settings** window under **General**, find **Cycle Shortcut**.

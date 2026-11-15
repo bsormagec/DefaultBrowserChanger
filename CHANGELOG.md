@@ -5,6 +5,25 @@ All notable changes to DefaultBrowserChanger will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-11-14
+
+### Added
+- **Link Rules (`DomainRule`):**
+  - Send links for specific sites to a specific browser, overriding the active browser.
+  - Pattern forms: `github.com` (domain and all subdomains), `*.atlassian.net`, and `github.com/work-org` (path prefix).
+  - First matching rule wins; if a rule's browser is no longer installed, links fall back to the active browser.
+  - New **Link Rules** section in the Settings window to add, edit, and remove rules. Rules persist in `UserDefaults`.
+- `Tests/TestDomainRules.swift` covering rule matching, run in CI and release workflows.
+
+### Changed
+- Settings window is taller to fit the Link Rules section.
+- `Info.plist` now declares `LSMinimumSystemVersion` 13.0 to match the build target.
+
+### Fixed
+- Landing page listed macOS 12 as the minimum; the app requires macOS 13 Ventura or newer.
+
+---
+
 ## [1.2.0] - 2026-10-01
 
 ### Added

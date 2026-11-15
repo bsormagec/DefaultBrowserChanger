@@ -61,6 +61,7 @@ jobs:
           swift Tests/TestOnboardingState.swift
           swift Tests/TestSingleInstance.swift
           swift Tests/TestSystemHelperAccessibility.swift
+          cat Sources/Models/DomainRule.swift Tests/TestDomainRules.swift | swift -
 
       - name: Package Release Archive
         run: |

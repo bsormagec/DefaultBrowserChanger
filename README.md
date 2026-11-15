@@ -40,6 +40,7 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 - 🎯 **One-Click Switch:** Click the Globe, choose any installed browser, done.
 - ⚙️ **Settings Window (`⌘,`):** Configure your switch preferences, browser list, and hotkey from a clean native SwiftUI interface.
 - ☑️ **Custom Browser Switch List:** Checkbox list allowing you to choose exactly which browsers participate in keyboard cycling.
+- 🧩 **Link Rules:** Always open specific sites in a specific browser — `github.com/work-org` → Chrome, `*.atlassian.net` → Arc — no matter which browser is active.
 - ⌨️ **Customizable Global Shortcut:** Interactive recorder lets you bind the cycle shortcut to any key combination you prefer (`⌃⌥B`, `⌥Space`, `⌘⇧B`, etc.).
 - 🔔 **On-Screen Floating HUD:** Instant floating pill at the top of your screen showing the active browser's real icon and name when switching.
 - ⚡ **Zero-Prompt Proxy:** 100% native Swift URL routing (0.001s). Zero popups, zero system dialogs, and **zero accessibility permissions**.
