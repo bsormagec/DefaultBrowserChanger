@@ -36,6 +36,7 @@ public class MenuBarController: NSObject, NSMenuDelegate {
 
     public func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
+        BrowserManager.shared.invalidateBrowserCache()  // pick up newly installed browsers/profiles
         updateTooltip()
 
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
@@ -158,6 +159,7 @@ public class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc func refreshBrowsers(_ sender: NSMenuItem) {
         SystemHelper.shared.playFeedbackSound()
+        BrowserManager.shared.invalidateBrowserCache()
         _ = BrowserManager.shared.fetchInstalledBrowsers()
     }
 }

@@ -5,6 +5,16 @@ All notable changes to DefaultBrowserChanger will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Faster link routing:** The installed browser list is now cached instead of being rebuilt for every link. A full scan took about 60–200 ms (LaunchServices plus reading Chromium profile files). The list refreshes whenever the menu or Settings opens, or from **Refresh Browsers**.
+
+### Fixed
+- **Possible link loop:** If the chosen browser failed to open a link, the link was handed to the system default browser — which is DefaultBrowserChanger itself — so it could bounce back and retry endlessly. Failed links now fall back to Safari, and if Safari fails too, the app beeps instead of retrying.
+
+---
+
 ## [1.6.0] - 2026-11-15
 
 ### Added

@@ -55,8 +55,8 @@ public class LinkRouter: NSObject {
         let activeId = activeBrowserId
 
         guard let targetBrowser = ruleTarget ?? browsers.first(where: { $0.id == activeId }) ?? browsers.first else {
-            NSLog("LinkRouter: No target browser found, opening with default workspace")
-            NSWorkspace.shared.open(url)
+            NSLog("LinkRouter: No target browser found, falling back to Safari")
+            openInSafari(url)
             return
         }
 
@@ -77,7 +77,11 @@ public class LinkRouter: NSObject {
         let completion: (NSRunningApplication?, Error?) -> Void = { _, error in
             if let error = error {
                 NSLog("LinkRouter: Failed to open URL in %@: %@", browser.name, error.localizedDescription)
-                NSWorkspace.shared.open(url)
+                if browser.id != Self.safariId {
+                    self.openInSafari(url)
+                } else {
+                    DispatchQueue.main.async { NSSound.beep() }
+                }
             } else {
                 NSLog("LinkRouter: Successfully opened URL in %@", browser.name)
             }
@@ -91,6 +95,24 @@ public class LinkRouter: NSObject {
             NSWorkspace.shared.openApplication(at: browser.bundleURL, configuration: config, completionHandler: completion)
         } else {
             NSWorkspace.shared.open([url], withApplicationAt: browser.bundleURL, configuration: config, completionHandler: completion)
+        }
+    }
+
+    private static let safariId = "com.apple.Safari"
+
+    /// Last resort when the chosen browser can't open a link. Never use `NSWorkspace.shared.open(url)`
+    /// here: the system default browser is this app, so the link would come straight back in a loop.
+    private func openInSafari(_ url: URL) {
+        guard let safari = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Self.safariId) else {
+            NSLog("LinkRouter: Safari not found, link not opened")
+            NSSound.beep()
+            return
+        }
+        NSWorkspace.shared.open([url], withApplicationAt: safari, configuration: NSWorkspace.OpenConfiguration()) { _, error in
+            if let error = error {
+                NSLog("LinkRouter: Safari fallback failed: %@", error.localizedDescription)
+                DispatchQueue.main.async { NSSound.beep() }
+            }
         }
     }
 

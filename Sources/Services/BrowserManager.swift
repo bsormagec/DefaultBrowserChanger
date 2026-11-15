@@ -13,7 +13,23 @@ public class BrowserManager {
         return Bundle(url: url)?.bundleIdentifier
     }
 
+    private var cachedBrowsers: [BrowserApp]?
+
+    /// Cached: a full scan takes ~70 ms (LaunchServices + reading Chromium profile files), too slow to repeat per link.
+    /// ponytail: refreshed only when the menu or Settings opens, or via Refresh Browsers. A browser installed
+    /// in between shows up on the next refresh; watch /Applications if that ever matters.
     public func fetchInstalledBrowsers() -> [BrowserApp] {
+        if let cached = cachedBrowsers { return cached }
+        let browsers = scanInstalledBrowsers()
+        cachedBrowsers = browsers
+        return browsers
+    }
+
+    public func invalidateBrowserCache() {
+        cachedBrowsers = nil
+    }
+
+    private func scanInstalledBrowsers() -> [BrowserApp] {
         var appURLs = NSWorkspace.shared.urlsForApplications(toOpen: URL(string: "https://example.com")!)
         let httpURLs = NSWorkspace.shared.urlsForApplications(toOpen: URL(string: "http://example.com")!)
         for url in httpURLs {

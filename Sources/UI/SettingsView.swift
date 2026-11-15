@@ -349,6 +349,7 @@ public struct SettingsView: View {
     }
 
     private func loadState() {
+        BrowserManager.shared.invalidateBrowserCache()
         installedBrowsers = BrowserManager.shared.fetchInstalledBrowsers()
         cycleEnabledIds = BrowserManager.shared.getCycleEnabledBrowserIds()
         activeBrowserId = LinkRouter.shared.activeBrowserId
