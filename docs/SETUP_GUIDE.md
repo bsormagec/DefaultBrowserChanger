@@ -61,6 +61,13 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
 - **Clean Links** (under **General**, on by default): removes tracking parameters like `utm_source` and `fbclid`, and turns Outlook SafeLinks, Google, Facebook and Slack redirect links back into the real address. Link Rules then match that real address.
 - **Rules by app:** Each rule has a *From* menu. Pick an app (for example Slack) to make the rule apply only to links clicked there. Leave the site field empty to send **every** link from that app to the chosen browser.
 - **One-off picker:** Hold <kbd>⌥ Option</kbd> while clicking a link in any app. A browser menu appears at the pointer; pick one to open just that link there, or press <kbd>Esc</kbd> to cancel. The **Private Window** submenu opens the link in an incognito/private window of Chrome, Brave, Edge, Firefox and other supported browsers.
+- **Rule order & tester:** Rules are checked from top to bottom; use the ⌃/⌄ arrows to reorder them. Paste any link into **Test a link** to see which browser and rule it would use.
+- **Recent Links:** The menu's **Recent Links** submenu lists the last 10 links. Pick one to re-open it in another browser or copy it. The list is kept in memory only and cleared when the app quits.
+- **Automation:** Open these URLs from Shortcuts (*Open URL* action), Raycast, Alfred or Terminal (`open "dbc://cycle"`):
+  - `dbc://select?browser=Safari` — make Safari the active browser (names or bundle ids; profiles like `com.google.Chrome%23Profile%201`).
+  - `dbc://cycle` — switch to the next browser.
+  - `dbc://open?url=https%3A%2F%2Fexample.com&browser=org.mozilla.firefox&private=1` — open a link in a specific browser, optionally private.
+  - Tip: in **System Settings → Focus**, add a Shortcuts automation that opens `dbc://select?browser=…` when a Focus turns on.
 - **Update notice:** When a new version is on GitHub, an **Update Available** item appears at the top of the menu. Turn the daily check off under **General → Check for Updates**.
 
 ### 4. Customizing Your Global Shortcut

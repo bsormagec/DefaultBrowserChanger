@@ -43,6 +43,8 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 - 🧩 **Link Rules:** Always open specific sites in a specific browser — `github.com/work-org` → Chrome, `*.atlassian.net` → Arc — no matter which browser is active. Rules can also match the app a link was clicked in, e.g. every link from Slack → Chrome — Work.
 - 👤 **Browser Profiles:** Chrome, Brave, Edge, Vivaldi and other Chromium browsers show each profile as its own entry ("Google Chrome — Work"), so links, rules and shortcuts can target a specific profile.
 - 🧹 **Clean Links:** Strips tracking parameters (`utm_*`, `fbclid`, `gclid`…) and unwraps Outlook SafeLinks, Google, Facebook and Slack redirect links before opening them.
+- 🤖 **Automation URLs:** `dbc://select?browser=Safari`, `dbc://cycle` and `dbc://open?url=…&browser=…` let Shortcuts, Raycast, Alfred or Focus filters switch browsers and open links.
+- 🕘 **Recent Links:** Re-open any of the last 10 links in a different browser from the menu (kept in memory only).
 - ⌥ **One-Off Browser Picker:** Hold <kbd>⌥ Option</kbd> while clicking a link to pick which browser opens just that link — or open it in a private/incognito window.
 - ⌨️ **Customizable Global Shortcut:** Interactive recorder lets you bind the cycle shortcut to any key combination you prefer (`⌃⌥B`, `⌥Space`, `⌘⇧B`, etc.).
 - 🔔 **On-Screen Floating HUD:** Instant floating pill at the top of your screen showing the active browser's real icon and name when switching.

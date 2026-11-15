@@ -14,6 +14,7 @@ public struct SettingsView: View {
     @State private var rules: [DomainRule] = []
     @State private var isCleanLinks: Bool = true
     @State private var isCheckForUpdates: Bool = true
+    @State private var testLink: String = ""
     @State private var sourceApps: [(id: String, name: String)] = []
 
     public var onDismiss: () -> Void
@@ -137,7 +138,12 @@ public struct SettingsView: View {
                                 .padding(.vertical, 12)
                         }
                         ForEach($rules) { $rule in
+                            let index = rules.firstIndex { $0.id == rule.id } ?? 0
                             HStack(spacing: 8) {
+                                Text("\(index + 1).")
+                                    .font(.system(size: 11, weight: .medium).monospacedDigit())
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 18, alignment: .trailing)
                                 TextField(rule.sourceApp == nil ? "example.com" : "any link", text: $rule.pattern)
                                     .textFieldStyle(.roundedBorder)
                                     .font(.system(size: 12))
@@ -156,7 +162,22 @@ public struct SettingsView: View {
                                     }
                                 }
                                 .labelsHidden()
-                                .frame(width: 190)
+                                .frame(width: 240)
+                                // First match wins, so order matters.
+                                VStack(spacing: 0) {
+                                    Button(action: { moveRule(at: index, by: -1) }) {
+                                        Image(systemName: "chevron.up").font(.system(size: 9, weight: .semibold))
+                                    }
+                                    .disabled(index == 0)
+                                    .help("Move up")
+                                    Button(action: { moveRule(at: index, by: 1) }) {
+                                        Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
+                                    }
+                                    .disabled(index == rules.count - 1)
+                                    .help("Move down")
+                                }
+                                .buttonStyle(.borderless)
+                                .foregroundColor(.secondary)
                                 Button(action: { rules.removeAll { $0.id == rule.id } }) {
                                     Image(systemName: "minus.circle")
                                         .foregroundColor(.secondary)
@@ -177,6 +198,22 @@ public struct SettingsView: View {
                         .stroke(Color(NSColor.separatorColor), lineWidth: 0.8)
                 )
                 .onChange(of: rules) { DomainRule.save($0) }
+
+                // Rule tester: shows where a pasted link would go with the rules as they are right now.
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: "checkmark.shield")
+                        .foregroundColor(.secondary)
+                    TextField("Test a link, e.g. https://github.com/work-org/repo", text: $testLink)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 12))
+                }
+                if let result = testResult {
+                    Text(result)
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                        .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             Divider()
@@ -307,7 +344,7 @@ public struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 580, height: 780)
+        .frame(width: 640, height: 840)
         .onAppear {
             loadState()
         }
@@ -405,6 +442,26 @@ public struct SettingsView: View {
         }
         return apps.map { (id: $0.key, name: $0.value) }
             .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
+
+    private func moveRule(at index: Int, by offset: Int) {
+        let target = index + offset
+        guard rules.indices.contains(index), rules.indices.contains(target) else { return }
+        rules.swapAt(index, target)
+    }
+
+    private var testResult: String? {
+        let text = testLink.trimmingCharacters(in: .whitespaces)
+        guard !text.isEmpty else { return nil }
+        guard let url = URL(string: text.contains("://") ? text : "https://" + text), url.host != nil else {
+            return "Enter a link like https://example.com/page"
+        }
+        let result = LinkRouter.shared.resolve(url, rules: rules)
+        var lines = ["→ " + (result.browser?.name ?? "no browser found")
+                     + (result.ruleIndex.map { " · rule \($0 + 1)" } ?? " · active browser (no rule matches)")]
+        if result.url != url { lines.append("Cleaned to: " + result.url.absoluteString) }
+        if rules.contains(where: { $0.sourceApp != nil }) { lines.append("Rules limited to an app are skipped in this test.") }
+        return lines.joined(separator: "\n")
     }
 
     private func addRule() {

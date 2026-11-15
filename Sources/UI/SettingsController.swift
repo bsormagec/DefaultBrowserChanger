@@ -24,7 +24,7 @@ public class SettingsController: NSObject, NSWindowDelegate {
         let hostingController = NSHostingController(rootView: contentView)
 
         let newWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 580, height: 780),
+            contentRect: NSRect(x: 0, y: 0, width: 640, height: 840),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false

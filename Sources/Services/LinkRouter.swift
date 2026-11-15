@@ -35,6 +35,63 @@ public class LinkRouter: NSObject {
     private var lastRoutedURL: String?
     private var lastRoutedTime: Date?
 
+    public struct Resolution {
+        public let url: URL            // after link cleaning
+        public let browser: BrowserApp?
+        public let ruleIndex: Int?     // index into DomainRule.load(); nil = active browser
+    }
+
+    /// Where a link goes (without the ⌥ picker): cleaned first so rules see the real destination, then the
+    /// first matching rule if its browser is still installed, otherwise the active browser.
+    /// `rules` defaults to the saved rules; Settings passes its unsaved, in-progress list to the tester.
+    public func resolve(_ url: URL, source: String? = nil, rules: [DomainRule]? = nil) -> Resolution {
+        let cleaned = LinkCleaner.isEnabled ? LinkCleaner.clean(url) : url
+        let browsers = BrowserManager.shared.fetchInstalledBrowsers()
+        let rules = rules ?? DomainRule.load()
+        if let index = DomainRule.firstMatchIndex(for: cleaned, source: source, in: rules),
+           let browser = browsers.first(where: { $0.id == rules[index].browserId }) {
+            return Resolution(url: cleaned, browser: browser, ruleIndex: index)
+        }
+        let activeId = activeBrowserId
+        return Resolution(url: cleaned, browser: browsers.first { $0.id == activeId } ?? browsers.first, ruleIndex: nil)
+    }
+
+    // MARK: - Automation (dbc:// URLs)
+
+    public func perform(_ command: AutomationCommand) {
+        let browsers = BrowserManager.shared.fetchInstalledBrowsers()
+        // Accept a bundle/profile id, or a display name for convenience ("Safari", "Google Chrome — Work").
+        func find(_ key: String) -> BrowserApp? {
+            browsers.first { $0.id == key } ?? browsers.first { $0.name.caseInsensitiveCompare(key) == .orderedSame }
+        }
+
+        switch command {
+        case .select(let key):
+            guard let browser = find(key) else {
+                NSLog("LinkRouter: automation select: no browser matches %@", key)
+                NSSound.beep()
+                return
+            }
+            activeBrowserId = browser.id
+            HUDController.shared.show(browser: browser)
+        case .cycle:
+            cycleNextBrowser { browser in
+                if let browser = browser { HUDController.shared.show(browser: browser) }
+            }
+        case .open(let url, let key, let privateWindow):
+            guard let key = key else {
+                route(url: url)  // no browser given: rules and active browser apply as usual
+                return
+            }
+            guard let browser = find(key) else {
+                NSLog("LinkRouter: automation open: no browser matches %@", key)
+                NSSound.beep()
+                return
+            }
+            open(LinkCleaner.isEnabled ? LinkCleaner.clean(url) : url, in: browser, privateWindow: privateWindow)
+        }
+    }
+
     public func route(url: URL, source: String? = nil) {
         let now = Date()
         if let lastUrl = lastRoutedURL, lastUrl == url.absoluteString,
@@ -45,16 +102,12 @@ public class LinkRouter: NSObject {
         lastRoutedURL = url.absoluteString
         lastRoutedTime = now
 
-        // Clean first so rules and the picker see the real destination, not a redirect wrapper.
-        let url = LinkCleaner.isEnabled ? LinkCleaner.clean(url) : url
+        let resolution = resolve(url, source: source)
+        let url = resolution.url
         NSLog("LinkRouter: Routing URL: %@ (from %@)", url.absoluteString, source ?? "unknown app")
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
-        // Rule wins if its browser is still installed; otherwise fall back to the active browser.
-        let ruleTarget = DomainRule.browserId(for: url, source: source, in: DomainRule.load())
-            .flatMap { id in browsers.first(where: { $0.id == id }) }
-        let activeId = activeBrowserId
 
-        guard let targetBrowser = ruleTarget ?? browsers.first(where: { $0.id == activeId }) ?? browsers.first else {
+        guard let targetBrowser = resolution.browser else {
             NSLog("LinkRouter: No target browser found, falling back to Safari")
             openInSafari(url)
             return
@@ -70,7 +123,29 @@ public class LinkRouter: NSObject {
         open(url, in: targetBrowser)
     }
 
+    // MARK: - Recent links
+
+    /// Last 10 opened links, newest first. Memory only: never written to disk, gone when the app quits.
+    public private(set) var recentLinks: [URL] = []
+
+    private func remember(_ url: URL) {
+        recentLinks.removeAll { $0 == url }
+        recentLinks.insert(url, at: 0)
+        if recentLinks.count > 10 { recentLinks.removeLast() }
+    }
+
+    public func clearRecentLinks() {
+        recentLinks.removeAll()
+    }
+
+    /// Re-open a link in a specific browser, skipping rules (used by Recent Links).
+    public func reopen(_ url: URL, inBrowserId id: String, privateWindow: Bool = false) {
+        guard let browser = BrowserManager.shared.fetchInstalledBrowsers().first(where: { $0.id == id }) else { return }
+        open(url, in: browser, privateWindow: privateWindow)
+    }
+
     private func open(_ url: URL, in browser: BrowserApp, privateWindow: Bool = false) {
+        if !privateWindow { remember(url) }  // private-window links stay out of the history
         let config = NSWorkspace.OpenConfiguration()
         config.activates = true
 

@@ -35,7 +35,11 @@ public struct DomainRule: Codable, Equatable, Identifiable {
 
     /// First matching rule wins.
     public static func browserId(for url: URL, source: String? = nil, in rules: [DomainRule]) -> String? {
-        rules.first { $0.matches(url, source: source) }?.browserId
+        firstMatchIndex(for: url, source: source, in: rules).map { rules[$0].browserId }
+    }
+
+    public static func firstMatchIndex(for url: URL, source: String? = nil, in rules: [DomainRule]) -> Int? {
+        rules.firstIndex { $0.matches(url, source: source) }
     }
 
     private static let storageKey = "domainRules"

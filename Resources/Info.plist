@@ -55,7 +55,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.7.0</string>
+	<string>1.8.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -69,9 +69,20 @@
 				<string>https</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>DefaultBrowserChanger automation</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>dbc</string>
+				<string>defaultbrowserchanger</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>9</string>
+	<string>10</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>

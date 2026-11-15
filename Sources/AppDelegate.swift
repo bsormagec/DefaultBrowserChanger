@@ -48,6 +48,15 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
               let url = URL(string: urlString) else {
             return
         }
+        if AutomationCommand.schemes.contains(url.scheme?.lowercased() ?? "") {
+            if let command = AutomationCommand.parse(url) {
+                LinkRouter.shared.perform(command)
+            } else {
+                NSLog("DefaultBrowserChanger: unknown automation URL %@", urlString)
+                NSSound.beep()
+            }
+            return
+        }
         // The app the link was clicked in, for source-app rules.
         let pid = event.attributeDescriptor(forKeyword: AEKeyword(keySenderPIDAttr))?.int32Value
         let source = pid.flatMap { NSRunningApplication(processIdentifier: pid_t($0))?.bundleIdentifier }

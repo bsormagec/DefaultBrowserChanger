@@ -90,6 +90,43 @@ public class MenuBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
+        // Recent links: re-open one in another browser
+        let recent = LinkRouter.shared.recentLinks
+        if !recent.isEmpty {
+            let recentMenu = NSMenu()
+            for url in recent {
+                let linkItem = NSMenuItem(title: Self.shortTitle(for: url), action: nil, keyEquivalent: "")
+                linkItem.toolTip = url.absoluteString
+                let linkMenu = NSMenu()
+                for browser in browsers {
+                    let item = NSMenuItem(title: "Open in \(browser.name)", action: #selector(reopenRecent(_:)), keyEquivalent: "")
+                    item.target = self
+                    item.image = browser.icon
+                    if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
+                        item.setValue(1, forKey: "preferredImageVisibility")
+                    }
+                    item.representedObject = [url, browser.id] as [Any]
+                    linkMenu.addItem(item)
+                }
+                linkMenu.addItem(NSMenuItem.separator())
+                let copyItem = NSMenuItem(title: "Copy Link", action: #selector(copyRecent(_:)), keyEquivalent: "")
+                copyItem.target = self
+                copyItem.representedObject = url
+                linkMenu.addItem(copyItem)
+                linkItem.submenu = linkMenu
+                recentMenu.addItem(linkItem)
+            }
+            recentMenu.addItem(NSMenuItem.separator())
+            let clearItem = NSMenuItem(title: "Clear Recent Links", action: #selector(clearRecent(_:)), keyEquivalent: "")
+            clearItem.target = self
+            recentMenu.addItem(clearItem)
+
+            let recentItem = NSMenuItem(title: "Recent Links", action: nil, keyEquivalent: "")
+            recentItem.submenu = recentMenu
+            menu.addItem(recentItem)
+            menu.addItem(NSMenuItem.separator())
+        }
+
         // Quick Actions & Settings
         let settingsItem = NSMenuItem(title: "Settings...", action: #selector(openSettings(_:)), keyEquivalent: ",")
         settingsItem.target = self
@@ -167,6 +204,28 @@ public class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc func openWelcomeGuide(_ sender: NSMenuItem) {
         OnboardingController.shared.showWindow(force: true)
+    }
+
+    /// "github.com/org/repo/pulls…" — host and path, without scheme or query, at most 50 characters.
+    static func shortTitle(for url: URL) -> String {
+        let text = (url.host ?? url.absoluteString) + (url.path == "/" ? "" : url.path)
+        return text.count > 50 ? String(text.prefix(49)) + "…" : text
+    }
+
+    @objc func reopenRecent(_ sender: NSMenuItem) {
+        guard let pair = sender.representedObject as? [Any],
+              let url = pair.first as? URL, let browserId = pair.last as? String else { return }
+        LinkRouter.shared.reopen(url, inBrowserId: browserId)
+    }
+
+    @objc func copyRecent(_ sender: NSMenuItem) {
+        guard let url = sender.representedObject as? URL else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(url.absoluteString, forType: .string)
+    }
+
+    @objc func clearRecent(_ sender: NSMenuItem) {
+        LinkRouter.shared.clearRecentLinks()
     }
 
     @objc func openUpdatePage(_ sender: NSMenuItem) {

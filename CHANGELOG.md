@@ -5,6 +5,22 @@ All notable changes to DefaultBrowserChanger will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-11-15
+
+### Added
+- **Automation URLs (`AutomationCommand`):** Control the app from Shortcuts, Raycast, Alfred, Focus filters or the terminal. `defaultbrowserchanger://` works the same as `dbc://`.
+  - `dbc://select?browser=<id or name>` sets the active browser (bundle id, profile id like `com.google.Chrome#Profile 1`, or a display name such as `Safari`).
+  - `dbc://cycle` switches to the next browser, like the shortcut.
+  - `dbc://open?url=<encoded link>&browser=<id or name>&private=1` opens a link in a specific browser, optionally in a private window. Without `browser`, rules and the active browser apply. Only `http`/`https` links are accepted.
+- **Rule Order & Tester:** Rules are numbered and can be moved up or down; the first match wins. A **Test a link** field under the rules shows where a pasted link would go — which browser, which rule, and the cleaned address — using the rules as currently edited.
+- **Recent Links:** The menu lists the last 10 opened links. Each one can be re-opened in any other browser or copied. The list lives only in memory — it is never written to disk, is cleared when the app quits, and never includes private-window links. **Clear Recent Links** empties it.
+- `Tests/TestAutomationCommand.swift`, run in CI and release workflows.
+
+### Changed
+- Settings window is larger to fit the rule controls and tester.
+
+---
+
 ## [1.7.0] - 2026-11-15
 
 ### Added
