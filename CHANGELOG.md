@@ -5,9 +5,17 @@ All notable changes to DefaultBrowserChanger will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.7.0] - 2026-11-15
+
+### Added
+- **Rules by Source App:** Each Link Rule has a new *From* menu that limits it to links clicked in a specific app, such as Slack or Mail. A rule with an app and an empty site field sends every link from that app to the chosen browser. The app is read from the URL event's sender. Rules saved by earlier versions keep working unchanged.
+- **Private Window in the ⌥ Picker:** A **Private Window** submenu opens the link in an incognito/private window: `--incognito` for Chrome, Brave, Vivaldi, Chromium and Comet; `--inprivate` for Edge; `-private-window` for Firefox. Safari has no command-line option for this, so it isn't listed.
+- **Update Check (`UpdateChecker`):** Once a day the app asks GitHub for the latest release. When a newer version exists, an **Update Available** item appears at the top of the menu and opens the release page. This is the app's only network request and sends no URLs or personal data. On by default; turn it off under **Settings → General → Check for Updates**.
+- `Tests/TestUpdateChecker.swift` for version comparison; source-app cases added to `TestDomainRules`.
 
 ### Changed
+- Settings window is wider to fit the rule's app menu.
+- README, setup guide and site now describe the update check instead of claiming "no network access".
 - **Faster link routing:** The installed browser list is now cached instead of being rebuilt for every link. A full scan took about 60–200 ms (LaunchServices plus reading Chromium profile files). The list refreshes whenever the menu or Settings opens, or from **Refresh Browsers**.
 
 ### Fixed

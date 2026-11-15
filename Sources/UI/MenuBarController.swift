@@ -39,6 +39,18 @@ public class MenuBarController: NSObject, NSMenuDelegate {
         BrowserManager.shared.invalidateBrowserCache()  // pick up newly installed browsers/profiles
         updateTooltip()
 
+        if let update = UpdateChecker.shared.available {
+            let updateItem = NSMenuItem(title: "Update Available: \(update.version)…", action: #selector(openUpdatePage(_:)), keyEquivalent: "")
+            updateItem.target = self
+            updateItem.representedObject = update.page
+            updateItem.image = NSImage(systemSymbolName: "arrow.down.circle.fill", accessibilityDescription: nil)
+            if updateItem.responds(to: Selector(("setPreferredImageVisibility:"))) {
+                updateItem.setValue(1, forKey: "preferredImageVisibility")
+            }
+            menu.addItem(updateItem)
+            menu.addItem(NSMenuItem.separator())
+        }
+
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
         let activeBundleId = LinkRouter.shared.activeBrowserId
 
@@ -155,6 +167,12 @@ public class MenuBarController: NSObject, NSMenuDelegate {
 
     @objc func openWelcomeGuide(_ sender: NSMenuItem) {
         OnboardingController.shared.showWindow(force: true)
+    }
+
+    @objc func openUpdatePage(_ sender: NSMenuItem) {
+        guard let page = sender.representedObject as? URL else { return }
+        // Open in the active browser directly; NSWorkspace.open(url) would route back through this app anyway.
+        LinkRouter.shared.route(url: page)
     }
 
     @objc func refreshBrowsers(_ sender: NSMenuItem) {

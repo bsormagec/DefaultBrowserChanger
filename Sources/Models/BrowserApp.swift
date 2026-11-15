@@ -19,6 +19,19 @@ public struct BrowserApp: Identifiable, Equatable {
         self.profileDirectory = profileDirectory
     }
 
+    /// Bundle id without the "#profile" suffix.
+    public var bundleId: String {
+        id.split(separator: "#", maxSplits: 1).first.map(String.init) ?? id
+    }
+
+    /// Command-line flag that opens a private window, or nil when unsupported (Safari has none).
+    public var privateWindowFlag: String? {
+        if bundleId == "com.microsoft.edgemac" { return "--inprivate" }
+        if ChromiumProfiles.dataFolders[bundleId] != nil { return "--incognito" }
+        if bundleId.hasPrefix("org.mozilla.") { return "-private-window" }  // Firefox, Nightly, Developer Edition
+        return nil
+    }
+
     public static func == (lhs: BrowserApp, rhs: BrowserApp) -> Bool {
         return lhs.id == rhs.id && lhs.isDefault == rhs.isDefault
     }

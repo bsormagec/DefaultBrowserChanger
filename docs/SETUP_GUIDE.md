@@ -59,7 +59,9 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
   - Rules are checked top to bottom; the first match wins.
 - **Profiles:** If Chrome, Brave, Edge, Vivaldi or another Chromium browser has two or more profiles, each profile appears as its own entry (for example *Google Chrome — Work*). Pick it anywhere you pick a browser: the menu, the cycle list, a Link Rule or the ⌥ picker. The plain *Google Chrome* entry opens whichever profile you used last.
 - **Clean Links** (under **General**, on by default): removes tracking parameters like `utm_source` and `fbclid`, and turns Outlook SafeLinks, Google, Facebook and Slack redirect links back into the real address. Link Rules then match that real address.
-- **One-off picker:** Hold <kbd>⌥ Option</kbd> while clicking a link in any app. A browser menu appears at the pointer; pick one to open just that link there, or press <kbd>Esc</kbd> to cancel.
+- **Rules by app:** Each rule has a *From* menu. Pick an app (for example Slack) to make the rule apply only to links clicked there. Leave the site field empty to send **every** link from that app to the chosen browser.
+- **One-off picker:** Hold <kbd>⌥ Option</kbd> while clicking a link in any app. A browser menu appears at the pointer; pick one to open just that link there, or press <kbd>Esc</kbd> to cancel. The **Private Window** submenu opens the link in an incognito/private window of Chrome, Brave, Edge, Firefox and other supported browsers.
+- **Update notice:** When a new version is on GitHub, an **Update Available** item appears at the top of the menu. Turn the daily check off under **General → Check for Updates**.
 
 ### 4. Customizing Your Global Shortcut
 - In the **Settings** window under **General**, find **Cycle Shortcut**.
@@ -92,7 +94,7 @@ To allow DefaultBrowserChanger to intercept and instantly route your web links t
 If DefaultBrowserChanger is your default browser and is not currently running, clicking any link in Mail, Slack, or Terminal will cause macOS to **automatically launch** DefaultBrowserChanger in the background, route your link instantly to your active browser, and remain ready in the menu bar.
 
 ### Does DefaultBrowserChanger inspect or log my URLs?
-**No.** DefaultBrowserChanger runs 100% locally and offline. It does not contain any networking code, analytics, or telemetry. It simply receives the URL from macOS and passes it to your selected browser using `NSWorkspace.shared.open`.
+**No.** Your links never leave your Mac: DefaultBrowserChanger has no analytics or telemetry. It receives the URL from macOS and passes it to your selected browser using `NSWorkspace`. Its only network request is a once-a-day update check that asks GitHub for the latest release version. That request contains no URLs or personal data, and you can turn it off in **Settings → General → Check for Updates**.
 
 ### Can I reopen this guide from the app?
 Yes! Click the Globe icon in the menu bar and select **Welcome Guide...** at any time.

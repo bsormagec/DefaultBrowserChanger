@@ -11,6 +11,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         SystemHelper.shared.requestNotificationPermission()
         UNUserNotificationCenter.current().delegate = SystemHelper.shared
         HotkeyManager.shared.setup()
+        UpdateChecker.shared.start()
 
         NSAppleEventManager.shared().setEventHandler(
             self,
@@ -47,6 +48,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
               let url = URL(string: urlString) else {
             return
         }
-        LinkRouter.shared.route(url: url)
+        // The app the link was clicked in, for source-app rules.
+        let pid = event.attributeDescriptor(forKeyword: AEKeyword(keySenderPIDAttr))?.int32Value
+        let source = pid.flatMap { NSRunningApplication(processIdentifier: pid_t($0))?.bundleIdentifier }
+        LinkRouter.shared.route(url: url, source: source)
     }
 }

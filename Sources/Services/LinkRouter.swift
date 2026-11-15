@@ -35,7 +35,7 @@ public class LinkRouter: NSObject {
     private var lastRoutedURL: String?
     private var lastRoutedTime: Date?
 
-    public func route(url: URL) {
+    public func route(url: URL, source: String? = nil) {
         let now = Date()
         if let lastUrl = lastRoutedURL, lastUrl == url.absoluteString,
            let lastTime = lastRoutedTime, now.timeIntervalSince(lastTime) < 0.5 {
@@ -47,10 +47,10 @@ public class LinkRouter: NSObject {
 
         // Clean first so rules and the picker see the real destination, not a redirect wrapper.
         let url = LinkCleaner.isEnabled ? LinkCleaner.clean(url) : url
-        NSLog("LinkRouter: Routing URL: %@", url.absoluteString)
+        NSLog("LinkRouter: Routing URL: %@ (from %@)", url.absoluteString, source ?? "unknown app")
         let browsers = BrowserManager.shared.fetchInstalledBrowsers()
-        // Domain rule wins if its browser is still installed; otherwise fall back to the active browser.
-        let ruleTarget = DomainRule.browserId(for: url, in: DomainRule.load())
+        // Rule wins if its browser is still installed; otherwise fall back to the active browser.
+        let ruleTarget = DomainRule.browserId(for: url, source: source, in: DomainRule.load())
             .flatMap { id in browsers.first(where: { $0.id == id }) }
         let activeId = activeBrowserId
 
@@ -70,7 +70,7 @@ public class LinkRouter: NSObject {
         open(url, in: targetBrowser)
     }
 
-    private func open(_ url: URL, in browser: BrowserApp) {
+    private func open(_ url: URL, in browser: BrowserApp, privateWindow: Bool = false) {
         let config = NSWorkspace.OpenConfiguration()
         config.activates = true
 
@@ -87,11 +87,15 @@ public class LinkRouter: NSObject {
             }
         }
 
-        if let profile = browser.profileDirectory {
-            // Same as `open -na <App> --args --profile-directory=…`: a running Chromium hands
-            // the second launch's arguments to its existing process, which opens the profile.
+        var flags: [String] = []
+        if let profile = browser.profileDirectory { flags.append("--profile-directory=\(profile)") }
+        if privateWindow, let flag = browser.privateWindowFlag { flags.append(flag) }
+
+        if !flags.isEmpty {
+            // Same as `open -na <App> --args <flags> <url>`: a running Chromium/Firefox hands the
+            // second launch's arguments to its existing process, which opens the profile/private window.
             config.createsNewApplicationInstance = true
-            config.arguments = ["--profile-directory=\(profile)", url.absoluteString]
+            config.arguments = flags + [url.absoluteString]
             NSWorkspace.shared.openApplication(at: browser.bundleURL, configuration: config, completionHandler: completion)
         } else {
             NSWorkspace.shared.open([url], withApplicationAt: browser.bundleURL, configuration: config, completionHandler: completion)
@@ -117,6 +121,7 @@ public class LinkRouter: NSObject {
     }
 
     private var pickedBrowserId: String?
+    private var pickedPrivate = false
 
     private func showPicker(for url: URL, browsers: [BrowserApp], suggested: BrowserApp) {
         let menu = NSMenu()
@@ -128,14 +133,7 @@ public class LinkRouter: NSObject {
 
         var suggestedItem: NSMenuItem?
         for browser in browsers {
-            let item = NSMenuItem(title: browser.name, action: #selector(pickerItemSelected(_:)), keyEquivalent: "")
-            item.target = self
-            item.image = browser.icon
-            // macOS 27+ hides menu item images unless asked (same approach as MenuBarController).
-            if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
-                item.setValue(1, forKey: "preferredImageVisibility")
-            }
-            item.representedObject = browser.id
+            let item = pickerItem(for: browser, privateWindow: false)
             if browser.id == suggested.id {
                 item.state = .on
                 suggestedItem = item
@@ -143,21 +141,54 @@ public class LinkRouter: NSObject {
             menu.addItem(item)
         }
 
+        // Private windows: one entry per browser app (not per profile) that has a private-window flag.
+        let privateCapable = browsers.filter { $0.profileDirectory == nil && $0.privateWindowFlag != nil }
+        if !privateCapable.isEmpty {
+            menu.addItem(.separator())
+            let privateMenu = NSMenu()
+            privateMenu.autoenablesItems = false
+            privateCapable.forEach { privateMenu.addItem(pickerItem(for: $0, privateWindow: true)) }
+            let privateItem = NSMenuItem(title: "Private Window", action: nil, keyEquivalent: "")
+            privateItem.image = NSImage(systemSymbolName: "eyeglasses", accessibilityDescription: nil)
+            showImage(of: privateItem)
+            privateItem.submenu = privateMenu
+            menu.addItem(privateItem)
+        }
+
         pickedBrowserId = nil
+        pickedPrivate = false
         NSApp.activate(ignoringOtherApps: true)
         // popUp blocks until the menu closes; the selected item's action fires before it returns.
         menu.popUp(positioning: suggestedItem, at: NSEvent.mouseLocation, in: nil)
 
         if let browser = browsers.first(where: { $0.id == pickedBrowserId }) {
-            open(url, in: browser)
+            open(url, in: browser, privateWindow: pickedPrivate)
         } else {
             NSLog("LinkRouter: Picker dismissed, link not opened")
             NSApp.hide(nil) // hand focus back to the app the link came from
         }
     }
 
+    private func pickerItem(for browser: BrowserApp, privateWindow: Bool) -> NSMenuItem {
+        let item = NSMenuItem(title: browser.name, action: #selector(pickerItemSelected(_:)), keyEquivalent: "")
+        item.target = self
+        item.image = browser.icon
+        showImage(of: item)
+        item.representedObject = browser.id
+        item.tag = privateWindow ? 1 : 0
+        return item
+    }
+
+    /// macOS 27+ hides menu item images unless asked (same approach as MenuBarController).
+    private func showImage(of item: NSMenuItem) {
+        if item.responds(to: Selector(("setPreferredImageVisibility:"))) {
+            item.setValue(1, forKey: "preferredImageVisibility")
+        }
+    }
+
     @objc private func pickerItemSelected(_ sender: NSMenuItem) {
         pickedBrowserId = sender.representedObject as? String
+        pickedPrivate = sender.tag == 1
     }
 
     public func cycleNextBrowser(completion: ((BrowserApp?) -> Void)? = nil) {

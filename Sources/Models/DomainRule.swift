@@ -1,20 +1,26 @@
 import Foundation
 
-/// Sends links matching `pattern` to a specific browser, overriding the active one.
+/// Sends links matching `pattern` (and, if set, coming from `sourceApp`) to a specific browser, overriding the active one.
 /// Pattern forms: `github.com` (domain + all subdomains), `*.atlassian.net`, `github.com/work-org` (path prefix).
+/// An empty pattern with a `sourceApp` matches every link from that app.
 public struct DomainRule: Codable, Equatable, Identifiable {
     public var id = UUID()
     public var pattern: String
     public var browserId: String
+    /// Bundle id of the app the link was clicked in (e.g. "com.tinyspeck.slackmacgap"); nil = any app.
+    public var sourceApp: String?
 
-    public init(pattern: String, browserId: String) {
+    public init(pattern: String, browserId: String, sourceApp: String? = nil) {
         self.pattern = pattern
         self.browserId = browserId
+        self.sourceApp = sourceApp
     }
 
-    public func matches(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
+    public func matches(_ url: URL, source: String? = nil) -> Bool {
+        if let sourceApp = sourceApp, sourceApp != source { return false }
         var p = pattern.trimmingCharacters(in: .whitespaces).lowercased()
+        if p.isEmpty { return sourceApp != nil }
+        guard let host = url.host?.lowercased() else { return false }
         for prefix in ["https://", "http://", "*."] where p.hasPrefix(prefix) {
             p.removeFirst(prefix.count)
         }
@@ -28,8 +34,8 @@ public struct DomainRule: Codable, Equatable, Identifiable {
     }
 
     /// First matching rule wins.
-    public static func browserId(for url: URL, in rules: [DomainRule]) -> String? {
-        rules.first { $0.matches(url) }?.browserId
+    public static func browserId(for url: URL, source: String? = nil, in rules: [DomainRule]) -> String? {
+        rules.first { $0.matches(url, source: source) }?.browserId
     }
 
     private static let storageKey = "domainRules"

@@ -40,10 +40,10 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 - 🎯 **One-Click Switch:** Click the Globe, choose any installed browser, done.
 - ⚙️ **Settings Window (`⌘,`):** Configure your switch preferences, browser list, and hotkey from a clean native SwiftUI interface.
 - ☑️ **Custom Browser Switch List:** Checkbox list allowing you to choose exactly which browsers participate in keyboard cycling.
-- 🧩 **Link Rules:** Always open specific sites in a specific browser — `github.com/work-org` → Chrome, `*.atlassian.net` → Arc — no matter which browser is active.
+- 🧩 **Link Rules:** Always open specific sites in a specific browser — `github.com/work-org` → Chrome, `*.atlassian.net` → Arc — no matter which browser is active. Rules can also match the app a link was clicked in, e.g. every link from Slack → Chrome — Work.
 - 👤 **Browser Profiles:** Chrome, Brave, Edge, Vivaldi and other Chromium browsers show each profile as its own entry ("Google Chrome — Work"), so links, rules and shortcuts can target a specific profile.
 - 🧹 **Clean Links:** Strips tracking parameters (`utm_*`, `fbclid`, `gclid`…) and unwraps Outlook SafeLinks, Google, Facebook and Slack redirect links before opening them.
-- ⌥ **One-Off Browser Picker:** Hold <kbd>⌥ Option</kbd> while clicking a link to pick which browser opens just that link.
+- ⌥ **One-Off Browser Picker:** Hold <kbd>⌥ Option</kbd> while clicking a link to pick which browser opens just that link — or open it in a private/incognito window.
 - ⌨️ **Customizable Global Shortcut:** Interactive recorder lets you bind the cycle shortcut to any key combination you prefer (`⌃⌥B`, `⌥Space`, `⌘⇧B`, etc.).
 - 🔔 **On-Screen Floating HUD:** Instant floating pill at the top of your screen showing the active browser's real icon and name when switching.
 - ⚡ **Zero-Prompt Proxy:** 100% native Swift URL routing (0.001s). Zero popups, zero system dialogs, and **zero accessibility permissions**.
@@ -52,7 +52,7 @@ If you frequently test web applications across Safari, Chrome, Arc, Brave, Firef
 - 🛡️ **Single-Instance Guard:** Dual PID and POSIX `flock` file locking ensures only one instance ever runs.
 - 🚀 **Launch at Login:** Built-in `SMAppService` toggle so it's always ready when you turn on your Mac.
 - 🪶 **Zero Bloat:** Pure native Swift with AppKit and SwiftUI. Consumes under 15MB RAM and 0% CPU.
-- 🔒 **100% Private & Offline:** No network access, no telemetry, no tracking.
+- 🔒 **Private by Design:** No telemetry, no tracking, and your links never leave your Mac. The only network request is an optional daily update check to GitHub.
 
 ---
 
@@ -155,7 +155,7 @@ Unlike fragile UI automation or Accessibility-dependent solutions, `DefaultBrows
 - **No Accessibility Permissions (`AXIsProcessTrusted`):** Never needed.
 - **No Screen Recording / Keystroke Logging:** Completely unprivileged.
 - **No AppleScript UI clicking:** Built with 100% native Swift APIs (`NSWorkspace.shared.open`).
-- **No Network / Telemetry:** Operates entirely offline on your Mac.
+- **No Telemetry:** Links are handled entirely on your Mac. The only network request is a once-a-day GitHub update check (no URLs or personal data), which you can turn off in Settings.
 
 ---
 

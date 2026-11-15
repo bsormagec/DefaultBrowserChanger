@@ -13,6 +13,8 @@ public struct SettingsView: View {
     @State private var isRecordingShortcut: Bool = false
     @State private var rules: [DomainRule] = []
     @State private var isCleanLinks: Bool = true
+    @State private var isCheckForUpdates: Bool = true
+    @State private var sourceApps: [(id: String, name: String)] = []
 
     public var onDismiss: () -> Void
 
@@ -113,7 +115,7 @@ public struct SettingsView: View {
                         Text("Link Rules")
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(.secondary)
-                        Text("Matching links open in the chosen browser")
+                        Text("Links matching a site and/or app open in the chosen browser")
                             .font(.system(size: 11))
                             .foregroundColor(.secondary)
                     }
@@ -136,16 +138,25 @@ public struct SettingsView: View {
                         }
                         ForEach($rules) { $rule in
                             HStack(spacing: 8) {
-                                TextField("example.com", text: $rule.pattern)
+                                TextField(rule.sourceApp == nil ? "example.com" : "any link", text: $rule.pattern)
                                     .textFieldStyle(.roundedBorder)
                                     .font(.system(size: 12))
+                                Picker("", selection: $rule.sourceApp) {
+                                    Text("From any app").tag(String?.none)
+                                    ForEach(sourceApps, id: \.id) { app in
+                                        Text("From \(app.name)").tag(Optional(app.id))
+                                    }
+                                }
+                                .labelsHidden()
+                                .frame(width: 130)
+                                .help("Only links clicked in this app")
                                 Picker("", selection: $rule.browserId) {
                                     ForEach(installedBrowsers) { browser in
                                         Text(browser.name).tag(browser.id)
                                     }
                                 }
                                 .labelsHidden()
-                                .frame(width: 140)
+                                .frame(width: 190)
                                 Button(action: { rules.removeAll { $0.id == rule.id } }) {
                                     Image(systemName: "minus.circle")
                                         .foregroundColor(.secondary)
@@ -206,6 +217,24 @@ public struct SettingsView: View {
                         .labelsHidden()
                         .toggleStyle(.switch)
                         .onChange(of: isCleanLinks) { LinkCleaner.isEnabled = $0 }
+                }
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Check for Updates")
+                            .font(.system(size: 13))
+                        Text("Ask GitHub once a day for a new release — the app's only network request")
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    Toggle("", isOn: $isCheckForUpdates)
+                        .labelsHidden()
+                        .toggleStyle(.switch)
+                        .onChange(of: isCheckForUpdates) {
+                            UpdateChecker.isEnabled = $0
+                            UpdateChecker.shared.check()
+                        }
                 }
 
                 HStack(alignment: .center) {
@@ -278,7 +307,7 @@ public struct SettingsView: View {
             }
         }
         .padding(20)
-        .frame(width: 480, height: 730)
+        .frame(width: 580, height: 780)
         .onAppear {
             loadState()
         }
@@ -358,6 +387,24 @@ public struct SettingsView: View {
         shortcutDisplayString = HotkeyManager.shared.shortcutDisplayString
         rules = DomainRule.load()
         isCleanLinks = LinkCleaner.isEnabled
+        isCheckForUpdates = UpdateChecker.isEnabled
+        sourceApps = loadSourceApps()
+    }
+
+    /// Apps links can come from: running apps with a Dock icon, plus any app already used in a rule.
+    private func loadSourceApps() -> [(id: String, name: String)] {
+        let browserIds = Set(installedBrowsers.map { $0.id })
+        var apps: [String: String] = [:]
+        for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
+            guard let id = app.bundleIdentifier, !browserIds.contains(id), id != Bundle.main.bundleIdentifier else { continue }
+            apps[id] = app.localizedName ?? id
+        }
+        for id in rules.compactMap(\.sourceApp) where apps[id] == nil {
+            let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id)
+            apps[id] = url.map { FileManager.default.displayName(atPath: $0.path).replacingOccurrences(of: ".app", with: "") } ?? id
+        }
+        return apps.map { (id: $0.key, name: $0.value) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     private func addRule() {
